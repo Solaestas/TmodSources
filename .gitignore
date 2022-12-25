@@ -5,7 +5,7 @@
 
 # ����.xnb�ļ�
 *.xnb
-Config/*
+Config.targets
 # ����TestĿ¼�µ������ļ�
 Sources/Commons/Function/Test/*.*
 
