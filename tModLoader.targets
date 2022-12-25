@@ -1,6 +1,15 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="D:\Steam\steamapps\common\tModLoader\tMLMod.targets" />
+  <!-- 导入tML路径 -->
+  <Import Project="Config.targets" />
+  <!-- 导入tML配置文件 -->
+  <Import Project="$(tMLPath)\tMLMod.targets" />
+  <!-- 这个可以消除那个架构警告 -->
   <PropertyGroup>
-	<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+	  <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
+  
+  <!-- 生成时自动编译Effect -->
+  <Target Name="CompileEffect" BeforeTargets="Build">
+		<Exec Command="powershell &quot;$(ProjectDir)..\CompileEffect.ps1&quot;" />
+	</Target>
 </Project>
