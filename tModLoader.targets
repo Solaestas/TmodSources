@@ -10,6 +10,6 @@
   
   <!-- 生成时自动编译Effect -->
   <Target Name="CompileEffect" BeforeTargets="Build">
-		<Exec Command="powershell &quot;$(ProjectDir)..\CompileEffect.ps1&quot;" />
+		<Exec Command="powershell &quot;. '$(ProjectDir)..\CompileEffect.ps1'&quot;" />
 	</Target>
 </Project>
