@@ -13,6 +13,8 @@
 	<ItemGroup>
 		<EffectInput Include="**\*.fx"/>
 		<AvailableItemName Include="EffectInput"/>
+		<Images Include="**\*.png"/>
+		<AvailableItemName Include="Images"/>
 	</ItemGroup>
 	<Target Name="CompileEffect" BeforeTargets="Build" Inputs="@(EffectInput)" Outputs="@(EffectInput->'%(RelativeDir)%(FileName).xnb')">
 		<Exec Command="..\CompileEffect.bat" />
