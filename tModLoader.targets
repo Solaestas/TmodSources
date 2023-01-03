@@ -1,15 +1,20 @@
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- 导入tML路径 -->
-  <Import Project="Config.targets" />
-  <!-- 导入tML配置文件 -->
-  <Import Project="$(tMLPath)\tMLMod.targets" />
-  <!-- 这个可以消除那个架构警告 -->
-  <PropertyGroup>
-	  <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-  </PropertyGroup>
-  
-  <!-- 生成时自动编译Effect -->
-  <Target Name="CompileEffect" BeforeTargets="Build">
-		<Exec Command="powershell &quot;. '$(ProjectDir)..\CompileEffect.ps1'&quot;" />
+<Project ToolsVersion="14.0"
+  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<!-- 导入tML路径 -->
+	<Import Project="Config.targets" />
+	<!-- 导入tML配置文件 -->
+	<Import Project="$(tMLPath)\tMLMod.targets" />
+	<!-- 这个可以消除那个架构警告 -->
+	<PropertyGroup>
+		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+	</PropertyGroup>
+
+	<!--生成时自动编译Effect-->
+	<ItemGroup>
+		<EffectInput Include="**\*.fx"/>
+		<AvailableItemName Include="EffectInput"/>
+	</ItemGroup>
+	<Target Name="CompileEffect" BeforeTargets="Build" Inputs="@(EffectInput)" Outputs="@(EffectInput->'%(RelativeDir)%(FileName).xnb')">
+		<Exec Command="..\CompileEffect.bat" />
 	</Target>
 </Project>
