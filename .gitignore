@@ -3,10 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+TransMaker/*
+
 *.xnb
 Config.targets
-EffectCompiler/logfile.txt
-EffectCompiler/shader.cache
+Tools/EffectCompiler/logfile.txt
+Tools/EffectCompiler/shader.cache
 # User-specific files
 *.rsuser
 *.suo
@@ -366,3 +368,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 *.sfk
+Config.targets
+Config.targets
+/TransMaker

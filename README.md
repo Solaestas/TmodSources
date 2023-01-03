@@ -1,0 +1,1 @@
+编译前运行MakeConfig.sh

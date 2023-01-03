@@ -16,7 +16,7 @@
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.Xna.Framework.Content.Pipeline">
-      <HintPath>..\Microsoft.Xna.Framework.Content.Pipeline.dll</HintPath>
+      <HintPath>..\..\EffectCompiler\Microsoft.Xna.Framework.Content.Pipeline.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
   </ItemGroup>
