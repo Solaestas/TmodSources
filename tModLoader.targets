@@ -11,12 +11,26 @@
 
 	<!--生成时自动编译Effect-->
 	<ItemGroup>
-		<EffectInput Include="**\*.fx"/>
+		<EffectInput Include="**\*.fx">
+			<Importer>EffectImporter</Importer>
+			<Processor>EffectProcesser</Processor>
+		</EffectInput>
 		<AvailableItemName Include="EffectInput"/>
 		<Images Include="**\*.png"/>
 		<AvailableItemName Include="Images"/>
+		<PipelineAssemblies Include="C:\Codes\TmodSources\Tools\BulidEffect\BulidEffect\bin\Debug\netstandard2.0\*.dll" />
 	</ItemGroup>
-	<Target Name="CompileEffect" BeforeTargets="Build" Inputs="@(EffectInput)" Outputs="@(EffectInput->'%(RelativeDir)%(FileName).xnb')">
-		<Exec Command="..\CompileEffect.bat" />
-	</Target>
+
+	<UsingTask TaskName="BuildEffect" AssemblyFile="C:\Codes\TmodSources\Tools\BulidEffect\BulidEffect\bin\Release\netstandard2\publish\ModTools.dll" />
+	<Target Name="BuildEffect" BeforeTargets="Build">
+		<BuildEffect BuilderDirectory="C:\Codes\TmodSources\Tools\BulidEffect\BuildContent\bin\Release\net472-windows\win7-x86\"
+					  InputFiles="@(EffectInput)"
+					  TargetPlatform="Windows"
+					  TargetProfile="HiDef"
+				      BuildConfiguration="$(Configuration)"
+					  IntermediateDirectory="$(IntermediateOutputPath)Effects\"
+					  OutputDirectory="$(OutputPath)Effects\"
+					  />
+	</Target>	
+
 </Project>

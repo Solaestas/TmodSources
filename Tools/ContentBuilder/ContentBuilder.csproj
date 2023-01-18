@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>exe</OutputType>
+		<TargetFramework>net472-windows</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<PlatformTarget>x86</PlatformTarget>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="Libraries/*.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	  <PackageReference Include="PolySharp" Version="1.10.0">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+</Project>

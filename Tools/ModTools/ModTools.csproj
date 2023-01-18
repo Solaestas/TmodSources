@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2</TargetFramework>
+		<LangVersion>latest</LangVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="Libraries/**" />
+		<None Include="../../tModLoader.targets" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="CliWrap" Version="3.6.0" />
+	  <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.4.0" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	  <PackageReference Include="PolySharp" Version="1.10.0">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+</Project>
