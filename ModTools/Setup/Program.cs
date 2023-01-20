@@ -1,13 +1,16 @@
 ﻿using Setup;
 
-var directory = args[0];            //TmodSources文件夹位置
+var directory = AppDomain.CurrentDomain.BaseDirectory;
+directory = directory[..(directory.IndexOf("ModTools") - 1)];
 
-var modLoaderPath = Utils.FindModLoader();
+var modLoaderDirectory = Utils.FindModLoaderDirectory();
+var modDirectory = Utils.FindModDirectory();
 File.WriteAllText(Path.Combine(directory, "Config.props"),
 	$"""
 	<Project>
 	    <PropertyGroup>
-	        <tMLPath>{modLoaderPath}</tMLPath>
+	        <tMLDirectory>{modLoaderDirectory}</tMLDirectory>
+			<ModDirectory>{modDirectory}</ModDirectory>
 	    </PropertyGroup>
 	</Project>
 	"""
@@ -19,7 +22,9 @@ File.WriteAllText(Path.Combine(directory, "ModTools", "Config.cs"),
 
 	public static class Config
 	{
-		public const string ModLoaderPath = "{{modLoaderPath}}"
+		public const string ModLoaderDirectory = @"{{modLoaderDirectory}}";
+		public const string ModDirectory = @"{{modDirectory}}";
+		public const string BuildIdentifier = @"{{Utils.GetBuildIdentifier(Path.Combine(modLoaderDirectory, "tModLoader.dll"))}}";
 	}
 	"""
 );

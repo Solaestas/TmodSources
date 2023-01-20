@@ -33,7 +33,7 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 			var identity = file.GetMetadata("Identity");
 
 			string dir = Path.Combine(OutputDirectory, relativeDir);
-			string filePath = Path.Combine(dir, $"{filename}.rawing");
+			string filePath = Path.Combine(dir, $"{filename}.rawimg");
 			Log.LogMessage(MessageImportance.High, $"Building {identity} -> {filePath}");
 			try
 			{

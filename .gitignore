@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# TmodSources Ignore Files
+Config.props
+ModTools/Config.cs
+
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -362,4 +368,3 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 *.sfk
-Config.targets

@@ -1,5 +1,6 @@
 <Project>
     <PropertyGroup>
-        <tMLPath>D:\steam\steamapps\common\tModLoader</tMLPath>
+        <tMLDirectory>D:\steam\steamapps\common\tModLoader\</tMLDirectory>
+		<ModDirectory>C:\Users\28271\Documents\My Games\Terraria\tModLoader\Mods\</ModDirectory>
     </PropertyGroup>
 </Project>

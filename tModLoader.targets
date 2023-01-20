@@ -2,10 +2,8 @@
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<!-- 导入tML路径 -->
 	<Import Project="Config.props" />
-	<!-- 导入tML配置文件 -->
-	<Import Project="$(tMLPath)/tMLMod.targets" />
 	<PropertyGroup>
-		<ToolsDirectory>$(MSBuildThisFileDirectory)Tools\Publish\</ToolsDirectory>
+		<ToolsDirectory>$(MSBuildThisFileDirectory)ModTools\Publish\</ToolsDirectory>
 		<TaskPath>$(ToolsDirectory)ModTools\ModTools.dll</TaskPath>
 		<ContentBuilderDirectory>$(ToolsDirectory)ContentBuilder\</ContentBuilderDirectory>
 		<!--消除架构警告-->
@@ -13,13 +11,27 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Reference Include="$(tMLDirectory)tModLoader.dll" />
+		<Reference Include="$(tMLDirectory)Libraries\**\*.dll" />
+		<Reference Remove="$(tMLDirectory)Libraries\Native\**" />
+		<Reference Remove="$(tMLDirectory)Libraries\**\runtime*\**" />
+		<Reference Remove="$(tMLDirectory)Libraries\**\*.resources.dll" />
+	</ItemGroup>
+	
+	<ItemGroup>
 		<EffectFile Include="**\*.fx" />
 		<ImageFile Include="**\*.png" />
-		<AvailableItemName Include="EffectFile;ImageFile" />
+		<ImageFile Remove="icon.png" />
+		<!--默认不会包含其他资源，需要手动指定-->
+		<ResourceFile Include="icon.png" />
+		<ResourceFile Include="**\*.hjson" />
+		<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
+		<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
 	</ItemGroup>
 
 	<UsingTask TaskName="BuildEffect" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="BuildImage" AssemblyFile="$(TaskPath)" />
+	<UsingTask TaskName="BuildMod" AssemblyFile="$(TaskPath)" />
 
 	<Target Name="BuildEffect" BeforeTargets="Build"
 			Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
@@ -32,7 +44,17 @@
 					  OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
 	<Target Name="BuildImage" BeforeTargets="Build"
-			Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawing')">
+			Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')">
 		<BuildImage InputFiles="@(ImageFile)" OutputDirectory="$(OutputPath)Assets\" />
+	</Target>
+	<Target Name="BuildMod" AfterTargets="Build"
+			Inputs="@(ResourceFile);@(AssetFile)"
+			Outputs="$(ModDirectory)$(AssemblyName).tmod">
+		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)"
+				  OutputDirectory="$(OutputPath)"
+				  ModDirectory="$(ModDirectory)"
+				  Configuration="$(Configuration)"
+				  AssetFiles="@(AssetFile);"
+				  ResourceFiles="@(ResourceFile)"/>
 	</Target>
 </Project>

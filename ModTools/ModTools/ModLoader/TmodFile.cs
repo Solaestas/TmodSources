@@ -17,21 +17,21 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 		public string Name { get; }
 
 		// from the start of the file
-		public int Offset { get; internal set; }
+		public int Offset { get; set; }
 
 		public int Length { get; }
 		public int CompressedLength { get; }
 
 		// intended to be readonly, but unfortunately no ReadOnlySpan on .NET 4.5
-		internal byte[] cachedBytes;
+		public byte[] CachedBytes { get; }
 
-		internal FileEntry(string name, int offset, int length, int compressedLength, byte[] cachedBytes = null)
+		public FileEntry(string name, int offset, int length, int compressedLength, byte[] cachedBytes = null)
 		{
 			Name = name;
 			Offset = offset;
 			Length = length;
 			CompressedLength = compressedLength;
-			this.cachedBytes = cachedBytes;
+			CachedBytes = cachedBytes;
 		}
 
 		public bool IsCompressed => Length != CompressedLength;
@@ -43,7 +43,7 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 
 	private static string Sanitize(string path) => path.Replace('\\', '/');
 
-	public readonly string path;
+	public readonly string Path;
 
 	private FileStream fileStream;
 	private IDictionary<string, FileEntry> files = new Dictionary<string, FileEntry>();
@@ -57,11 +57,11 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 
 	public byte[] Hash { get; private set; }
 
-	internal byte[] Signature { get; private set; } = new byte[256];
+	public byte[] Signature { get; private set; } = new byte[256];
 
-	internal TmodFile(string path, string name = null, Version version = null)
+	public TmodFile(string path, string name = null, Version version = null)
 	{
-		this.path = path;
+		Path = path;
 		Name = name;
 		Version = version;
 	}
@@ -70,36 +70,40 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 	/// Adds a (fileName -&gt; content) entry to the compressed payload This method is not
 	/// threadsafe with reads, but is threadsafe with multiple concurrent AddFile calls
 	/// </summary>
-	/// <param name="fileName">The internal filepath, will be slash sanitised automatically</param>
+	/// <param name="fileName">The public filepath, will be slash sanitised automatically</param>
 	/// <param name="data">
 	/// The file content to add. WARNING, data is kept as a shallow copy, so modifications to the
 	/// passed byte array will affect file content
 	/// </param>
-	internal void AddFile(string fileName, byte[] data)
+	public void AddFile(string fileName, byte[] data)
 	{
 		fileName = Sanitize(fileName);
 		int size = data.Length;
 
 		if (size > MIN_COMPRESS_SIZE && ShouldCompress(fileName))
 		{
-			using (var ms = new MemoryStream(data.Length))
+			using var ms = new MemoryStream(data.Length);
+			using (var ds = new DeflateStream(ms, CompressionMode.Compress))
 			{
-				using (var ds = new DeflateStream(ms, CompressionMode.Compress))
-					ds.Write(data, 0, data.Length);
+				ds.Write(data, 0, data.Length);
+			}
 
-				var compressed = ms.ToArray();
-				if (compressed.Length < size * COMPRESSION_TRADEOFF)
-					data = compressed;
+			var compressed = ms.ToArray();
+			if (compressed.Length < size * COMPRESSION_TRADEOFF)
+			{
+				data = compressed;
 			}
 		}
 
 		lock (files)
+		{
 			files[fileName] = new FileEntry(fileName, -1, size, data.Length, data);
+		}
 
 		fileTable = null;
 	}
 
-	internal void RemoveFile(string fileName)
+	public void RemoveFile(string fileName)
 	{
 		files.Remove(Sanitize(fileName));
 		fileTable = null;
@@ -112,18 +116,22 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 	public IEnumerator<FileEntry> GetEnumerator()
 	{
 		foreach (var entry in fileTable)
+		{
 			yield return entry;
+		}
 	}
 
-	internal void Save()
+	public void Save()
 	{
 		if (fileStream != null)
-			throw new IOException($"File already open: {path}");
+		{
+			throw new IOException($"File already open: {Path}");
+		}
 
 		// write the general TMOD header and data blob TMOD ascii identifier tModLoader version hash
 		// signature data length signed data
-		Directory.CreateDirectory(Path.GetDirectoryName(path));
-		using (fileStream = File.Create(path))
+		Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path));
+		using (fileStream = File.Create(Path))
 		using (var writer = new BinaryWriter(fileStream))
 		{
 			writer.Write(Encoding.ASCII.GetBytes("TMOD"));
@@ -143,8 +151,10 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 
 			foreach (var f in fileTable)
 			{
-				if (f.CompressedLength != f.cachedBytes.Length)
-					throw new Exception($"CompressedLength ({f.CompressedLength}) != cachedBytes.Length ({f.cachedBytes.Length}): {f.Name}");
+				if (f.CompressedLength != f.CachedBytes.Length)
+				{
+					throw new Exception($"CompressedLength ({f.CompressedLength}) != cachedBytes.Length ({f.CachedBytes.Length}): {f.Name}");
+				}
 
 				writer.Write(f.Name);
 				writer.Write(f.Length);
@@ -155,7 +165,7 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 			int offset = (int)fileStream.Position; // offset starts at end of file table
 			foreach (var f in fileTable)
 			{
-				writer.Write(f.cachedBytes);
+				writer.Write(f.CachedBytes);
 
 				f.Offset = offset;
 				offset += f.CompressedLength;
