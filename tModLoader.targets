@@ -1,36 +1,38 @@
 <Project ToolsVersion="14.0"
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<!-- 导入tML路径 -->
-	<Import Project="Config.targets" />
+	<Import Project="Config.props" />
 	<!-- 导入tML配置文件 -->
-	<Import Project="$(tMLPath)\tMLMod.targets" />
-	<!-- 这个可以消除那个架构警告 -->
+	<Import Project="$(tMLPath)/tMLMod.targets" />
 	<PropertyGroup>
+		<ToolsDirectory>$(MSBuildThisFileDirectory)Tools\Publish\</ToolsDirectory>
+		<TaskPath>$(ToolsDirectory)ModTools\ModTools.dll</TaskPath>
+		<ContentBuilderDirectory>$(ToolsDirectory)ContentBuilder\</ContentBuilderDirectory>
+		<!--消除架构警告-->
 		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 	</PropertyGroup>
 
-	<!--生成时自动编译Effect-->
 	<ItemGroup>
-		<EffectInput Include="**\*.fx">
-			<Importer>EffectImporter</Importer>
-			<Processor>EffectProcesser</Processor>
-		</EffectInput>
-		<AvailableItemName Include="EffectInput"/>
-		<Images Include="**\*.png"/>
-		<AvailableItemName Include="Images"/>
-		<PipelineAssemblies Include="C:\Codes\TmodSources\Tools\BulidEffect\BulidEffect\bin\Debug\netstandard2.0\*.dll" />
+		<EffectFile Include="**\*.fx" />
+		<ImageFile Include="**\*.png" />
+		<AvailableItemName Include="EffectFile;ImageFile" />
 	</ItemGroup>
 
-	<UsingTask TaskName="BuildEffect" AssemblyFile="C:\Codes\TmodSources\Tools\BulidEffect\BulidEffect\bin\Release\netstandard2\publish\ModTools.dll" />
-	<Target Name="BuildEffect" BeforeTargets="Build">
-		<BuildEffect BuilderDirectory="C:\Codes\TmodSources\Tools\BulidEffect\BuildContent\bin\Release\net472-windows\win7-x86\"
-					  InputFiles="@(EffectInput)"
+	<UsingTask TaskName="BuildEffect" AssemblyFile="$(TaskPath)" />
+	<UsingTask TaskName="BuildImage" AssemblyFile="$(TaskPath)" />
+
+	<Target Name="BuildEffect" BeforeTargets="Build"
+			Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
+		<BuildEffect BuilderDirectory="$(ContentBuilderDirectory)"
+					  InputFiles="@(EffectFile)"
 					  TargetPlatform="Windows"
 					  TargetProfile="HiDef"
 				      BuildConfiguration="$(Configuration)"
-					  IntermediateDirectory="$(IntermediateOutputPath)Effects\"
-					  OutputDirectory="$(OutputPath)Effects\"
-					  />
-	</Target>	
-
+					  IntermediateDirectory="$(IntermediateOutputPath)Assets\"
+					  OutputDirectory="$(OutputPath)Assets\" />
+	</Target>
+	<Target Name="BuildImage" BeforeTargets="Build"
+			Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawing')">
+		<BuildImage InputFiles="@(ImageFile)" OutputDirectory="$(OutputPath)Assets\" />
+	</Target>
 </Project>

@@ -45,6 +45,7 @@ internal class Program
             TargetProfile = targetProfile,
             BuildConfiguration = buildConfiguration,
         }.Execute();
+
     }
 }
 

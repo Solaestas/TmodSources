@@ -21,14 +21,13 @@ public class BuildMod : Task
 	[Required]
 	public string OutputDirectory { get; set; }
 	/// <summary>
-	/// 模组名重写，默认为文件夹名
-	/// <br>
-	/// 模组名应该与ILoadable的命名空间和程序集名称相同
+	/// 模组名，默认为文件夹名 <br/> 模组名应该与ILoadable的命名空间和程序集名称相同
 	/// </summary>
-	public string ModNameOverride { get; set; }
+	public string ModName { get; set; }
 	public override bool Execute()
 	{
-		ModNameOverride ??= Path.GetDirectoryName(ModSourceDirectory);
+		ModName ??= Path.GetDirectoryName(ModSourceDirectory);
+	
 
 
 		return true;
