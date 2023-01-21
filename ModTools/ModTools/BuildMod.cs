@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
@@ -30,15 +31,18 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 	/// 模组名，默认为文件夹名 <br/> 模组名应该与ILoadable的命名空间和程序集名称相同
 	/// </summary>
 	public string ModName { get; set; }
+
 	/// <summary>
 	/// Debug or Release, 决定是否包含PDB
 	/// </summary>
 	public string Configuration { get; set; }
+
 	/// <summary>
 	/// 无预处理的资源文件，直接从源码中复制
 	/// </summary>
 	[Required]
 	public ITaskItem[] ResourceFiles { get; set; }
+
 	/// <summary>
 	/// 需要经过预处理的特殊资源文件
 	/// </summary>
@@ -47,57 +51,76 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 
 	public override bool Execute()
 	{
+		ModName ??= Path.GetFileName(ModSourceDirectory);
 		Log.LogMessage(MessageImportance.High, "Building Mod...");
 		Log.LogMessage(MessageImportance.High, $"Building {ModName} -> {Path.Combine(ModDirectory, $"{ModName}.tmod")}");
-		ModName ??= Path.GetFileName(ModSourceDirectory);
 
-		Log.LogMessage(MessageImportance.High, "Reading Properties");
 		var property = BuildProperties.ReadBuildFile(ModSourceDirectory);
 		var tmod = new TmodFile(Path.Combine(ModDirectory, $"{ModName}.tmod"), ModName, property.Version);
 		tmod.AddFile("Info", property.ToBytes());
 
-		Log.LogMessage(MessageImportance.High, "Reading Assets");
 		var assetDirectory = Path.Combine(OutputDirectory, "Assets") + Path.DirectorySeparatorChar;
 		Parallel.ForEach(AssetFiles, file =>
 		{
-			tmod.AddFile(file.ItemSpec.Replace(assetDirectory, ""), File.ReadAllBytes(file.ItemSpec));
+			try
+			{
+				tmod.AddFile(file.ItemSpec.Replace(assetDirectory, ""), File.ReadAllBytes(file.ItemSpec));
+			}
+			catch (Exception ex)
+			{
+				Log.LogErrorFromException(ex);
+				return;
+			}
 		});
 
-		Log.LogMessage(MessageImportance.High, "Reading Resources");
 		Parallel.ForEach(ResourceFiles, file =>
 		{
-			tmod.AddFile(file.GetMetadata("Identity"), File.ReadAllBytes(file.ItemSpec));
+			try
+			{
+				tmod.AddFile(file.GetMetadata("Identity"), File.ReadAllBytes(file.ItemSpec));
+			}
+			catch (Exception ex)
+			{
+				Log.LogErrorFromException(ex);
+				return;
+			}
 		});
 
 		//Add dll and pdb
-		Log.LogMessage(MessageImportance.High, "Reading Assemblies");
 		Parallel.ForEach(Directory.GetFiles(OutputDirectory, "*", SearchOption.TopDirectoryOnly), file =>
 		{
-			var ext = Path.GetExtension(file);
-			var name = Path.GetFileNameWithoutExtension(file);
-			if (DefaultDependency.Contains(name))
+			try
 			{
-				return;
-			}
+				var ext = Path.GetExtension(file);
+				var name = Path.GetFileNameWithoutExtension(file);
+				if (DefaultDependency.Contains(name))
+				{
+					return;
+				}
 
-			if (ext == ".dll")
-			{
-				if (name == ModName)
+				if (ext == ".dll")
 				{
-					tmod.AddFile($"{name}.dll", File.ReadAllBytes(file));
+					if (name == ModName)
+					{
+						tmod.AddFile($"{name}.dll", File.ReadAllBytes(file));
+					}
+					else
+					{
+						tmod.AddFile($"lib/{name}.dll", File.ReadAllBytes(file));
+					}
 				}
-				else
+				else if (ext == ".pdb" && Configuration != "Release")
 				{
-					tmod.AddFile($"lib/{name}.dll", File.ReadAllBytes(file));
+					tmod.AddFile($"{name}.pdb", File.ReadAllBytes(file));
 				}
 			}
-			else if (ext == ".pdb" && Configuration != "Release")
+			catch (Exception ex)
 			{
-				tmod.AddFile($"{name}.pdb", File.ReadAllBytes(file));
+				Log.LogErrorFromException(ex);
+				return;
 			}
 		});
 
-		Log.LogMessage(MessageImportance.High, "Saving tMod File");
 		tmod.Save();
 		return true;
 	}

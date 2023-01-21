@@ -7,7 +7,7 @@
 
 	<ItemGroup>
 		<!--Added for edit-->
-		<None Include="..\..\tModLoader.targets" />
+		<None Include="..\..\ModSources\tModLoader.targets" />
 		<None Include="..\..\Config.props" />
 		<Compile Include="..\Config.cs" />
 	</ItemGroup>

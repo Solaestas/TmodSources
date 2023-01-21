@@ -1,9 +1,9 @@
 <Project ToolsVersion="14.0"
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 	<!-- 导入tML路径 -->
-	<Import Project="Config.props" />
+	<Import Project="..\Config.props" />
 	<PropertyGroup>
-		<ToolsDirectory>$(MSBuildThisFileDirectory)ModTools\Publish\</ToolsDirectory>
+		<ToolsDirectory>$(MSBuildThisFileDirectory)..\ModTools\Publish\</ToolsDirectory>
 		<TaskPath>$(ToolsDirectory)ModTools\ModTools.dll</TaskPath>
 		<ContentBuilderDirectory>$(ToolsDirectory)ContentBuilder\</ContentBuilderDirectory>
 		<!--消除架构警告-->
@@ -17,16 +17,15 @@
 		<Reference Remove="$(tMLDirectory)Libraries\**\runtime*\**" />
 		<Reference Remove="$(tMLDirectory)Libraries\**\*.resources.dll" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<EffectFile Include="**\*.fx" />
 		<ImageFile Include="**\*.png" />
 		<ImageFile Remove="icon.png" />
 		<!--默认不会包含其他资源，需要手动指定-->
+		<!--不知道为啥icon.png是特殊处理的-->
 		<ResourceFile Include="icon.png" />
 		<ResourceFile Include="**\*.hjson" />
-		<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
-		<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
 	</ItemGroup>
 
 	<UsingTask TaskName="BuildEffect" AssemblyFile="$(TaskPath)" />
@@ -43,18 +42,34 @@
 					  IntermediateDirectory="$(IntermediateOutputPath)Assets\"
 					  OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
+
 	<Target Name="BuildImage" BeforeTargets="Build"
 			Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')">
 		<BuildImage InputFiles="@(ImageFile)" OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
+
 	<Target Name="BuildMod" AfterTargets="Build"
 			Inputs="@(ResourceFile);@(AssetFile)"
 			Outputs="$(ModDirectory)$(AssemblyName).tmod">
+		<ItemGroup>
+			<!--在此Include可以使模组csproj对ImageFile和EffectFile的修改生效-->
+			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
+			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
+		</ItemGroup>
 		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)"
 				  OutputDirectory="$(OutputPath)"
 				  ModDirectory="$(ModDirectory)"
 				  Configuration="$(Configuration)"
 				  AssetFiles="@(AssetFile);"
-				  ResourceFiles="@(ResourceFile)"/>
+				  ResourceFiles="@(ResourceFile)" />
+	</Target>
+
+	<Target Name="CleanAsset" AfterTargets="Clean">
+		<ItemGroup>
+			<!--复制BuildMod-->
+			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
+			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
+		</ItemGroup>
+		<Delete Files="@(AssetFile)" />
 	</Target>
 </Project>

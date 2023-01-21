@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CliWrap;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -48,6 +49,7 @@ public class BuildEffect : Task
 
 	public override bool Execute()
 	{
+		bool success = true;
 		Log.LogMessage(MessageImportance.High, "Building Effects...");
 		var cli = Cli.Wrap($"{BuilderDirectory}ContentBuilder.exe")
 		.WithArguments(new string[]
@@ -73,10 +75,13 @@ public class BuildEffect : Task
 			}
 			else if (args is BuildErrorEventArgs error)
 			{
+				Log.LogMessage(MessageImportance.High, $"{DateTime.Now} : {error.Message}");
 				BuildEngine.LogErrorEvent(error);
+				success = false;
 			}
 		});
-		return cli.ExecuteAsync().Task.Result.ExitCode == 0;
+		cli.ExecuteAsync().Task.Wait();
+		return success;
 	}
 }
 
@@ -105,8 +110,9 @@ public class BuildEventArgsConverter : JsonConverter<LazyFormattedBuildEventArgs
 				obj[nameof(BuildErrorEventArgs.File)].Value<string>(),
 				obj[nameof(BuildErrorEventArgs.LineNumber)].Value<int>(),
 				obj[nameof(BuildErrorEventArgs.ColumnNumber)].Value<int>(),
+				obj[nameof(BuildErrorEventArgs.EndLineNumber)].Value<int>(),
 				obj[nameof(BuildErrorEventArgs.EndColumnNumber)].Value<int>(),
-				obj[nameof(BuildErrorEventArgs.EndColumnNumber)].Value<int>(),
+				//string.Join("\n", obj[nameof(BuildErrorEventArgs.Message)].Value<string>().Split('\n').Where(s => !s.Contains("Errors compiling"))),
 				obj[nameof(BuildErrorEventArgs.Message)].Value<string>(),
 				obj[nameof(BuildErrorEventArgs.HelpKeyword)].Value<string>(),
 				obj[nameof(BuildErrorEventArgs.SenderName)].Value<string>(),
@@ -117,7 +123,7 @@ public class BuildEventArgsConverter : JsonConverter<LazyFormattedBuildEventArgs
 				obj[nameof(BuildWarningEventArgs.File)].Value<string>(),
 				obj[nameof(BuildWarningEventArgs.LineNumber)].Value<int>(),
 				obj[nameof(BuildWarningEventArgs.ColumnNumber)].Value<int>(),
-				obj[nameof(BuildWarningEventArgs.EndColumnNumber)].Value<int>(),
+				obj[nameof(BuildWarningEventArgs.EndLineNumber)].Value<int>(),
 				obj[nameof(BuildWarningEventArgs.EndColumnNumber)].Value<int>(),
 				obj[nameof(BuildWarningEventArgs.Message)].Value<string>(),
 				obj[nameof(BuildWarningEventArgs.HelpKeyword)].Value<string>(),
