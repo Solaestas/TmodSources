@@ -69,7 +69,9 @@
 			<!--复制BuildMod-->
 			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
 			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
+			<IntermediateFile Include="$(IntermediateOutputPath)Assets\**\*" />
 		</ItemGroup>
 		<Delete Files="@(AssetFile)" />
+		<Delete Files="@(IntermediateFile)" />
 	</Target>
 </Project>
