@@ -8,6 +8,10 @@
 		<ContentBuilderDirectory>$(ToolsDirectory)ContentBuilder\</ContentBuilderDirectory>
 		<!--消除架构警告-->
 		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<tMLPath>$(tMLDirectory)\tModLoader.dll</tMLPath>
+		<tMLSteamPath>$(tMLDirectory)</tMLSteamPath>
+		<DefineConstants>$(DefineConstants);TML_2022_09</DefineConstants>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -25,12 +29,17 @@
 		<!--默认不会包含其他资源，需要手动指定-->
 		<!--不知道为啥icon.png是特殊处理的-->
 		<ResourceFile Include="icon.png" />
+		<!--翻译文件-->
 		<ResourceFile Include="**\*.hjson" />
+		<!--音乐文件-->
+		<ResourceFile Include="**\*.ogg" />
+		<ResourceFile Include="**\*.mp3" />
 	</ItemGroup>
 
 	<UsingTask TaskName="BuildEffect" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="BuildImage" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="BuildMod" AssemblyFile="$(TaskPath)" />
+	<UsingTask TaskName="SetEnableMod" AssemblyFile="$(TaskPath)" />
 
 	<Target Name="BuildEffect" BeforeTargets="Build"
 			Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
@@ -48,18 +57,22 @@
 		<BuildImage InputFiles="@(ImageFile)" OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
 
-	<Target Name="BuildMod" AfterTargets="Build"
-			Inputs="@(ResourceFile);@(AssetFile)"
-			Outputs="$(ModDirectory)$(AssemblyName).tmod">
+	<Target Name="PrepareBuildMod" AfterTargets="Build">
 		<ItemGroup>
 			<!--在此Include可以使模组csproj对ImageFile和EffectFile的修改生效-->
 			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
 			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
 		</ItemGroup>
-		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)"
+	</Target>
+	<Target Name="BuildMod" AfterTargets="PrepareBuildMod" DependsOnTargets="PrepareBuildMod"
+			Inputs="@(ResourceFile);@(AssetFile);@(Compile)"
+			Outputs="$(ModDirectory)$(AssemblyName).tmod">
+		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)\"
+				  ModName="$(AssemblyName)"
 				  OutputDirectory="$(OutputPath)"
 				  ModDirectory="$(ModDirectory)"
 				  Configuration="$(Configuration)"
+				  IgnoreBuildFile="$(IgnoreBuildFile)"
 				  AssetFiles="@(AssetFile);"
 				  ResourceFiles="@(ResourceFile)" />
 	</Target>
@@ -73,5 +86,11 @@
 		</ItemGroup>
 		<Delete Files="@(AssetFile)" />
 		<Delete Files="@(IntermediateFile)" />
+	</Target>
+
+	<Target Name="SetEnableMod" AfterTargets="Build">
+		<SetEnableMod BuildingMod="$(AssemblyName)"
+					  HelpMods="$(HelpMods)"
+					  DisableOtherMod="$(DisableOtherMod)" />
 	</Target>
 </Project>

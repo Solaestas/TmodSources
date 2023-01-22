@@ -2,7 +2,6 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2</TargetFramework>
 		<LangVersion>latest</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>

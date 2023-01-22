@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<Import Project="..\..\ModSources\tModLoader.targets" />
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<DisableOtherMod>true</DisableOtherMod>
+		<HelpMods>HEROsMod</HelpMods>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="CliWrap" Version="3.6.0" />
+	</ItemGroup>
+
+</Project>

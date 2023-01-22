@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -57,7 +55,7 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 /// </summary>
 public static class ImageIO
 {
-	public static unsafe bool ToRaw(Stream source, Stream destination)
+	public static bool ToRaw(Stream source, Stream destination)
 	{
 		var image = Image.Load<Rgba32>(source);
 		using BinaryWriter writer = new BinaryWriter(destination);

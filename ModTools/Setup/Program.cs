@@ -5,6 +5,11 @@ directory = directory[..(directory.IndexOf("ModTools") - 1)];
 
 var modLoaderDirectory = Utils.FindModLoaderDirectory();
 var modDirectory = Utils.FindModDirectory();
+#if DEV
+modLoaderDirectory = Path.GetFullPath(Path.Combine(modLoaderDirectory, "..", "tModLoaderDev")) + Path.DirectorySeparatorChar;
+modDirectory = Path.GetFullPath(Path.Combine(modDirectory, "..", "..", "tModLoader-dev", "Mods")) + Path.DirectorySeparatorChar;
+#endif
+
 File.WriteAllText(Path.Combine(directory, "Config.props"),
 	$"""
 	<Project>
