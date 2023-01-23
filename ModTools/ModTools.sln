@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContentBuilder", "ContentBu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Setup", "Setup\Setup.csproj", "{1F527D86-54DB-46DD-9553-9668B1D77BE8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UwUMod", "UwUMod\UwUMod.csproj", "{50424EFB-5C5C-4583-8724-961CD213D3C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UwUMod", "UwUMod\UwUMod.csproj", "{50424EFB-5C5C-4583-8724-961CD213D3C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModGenerator", "ModGenerator\ModGenerator.csproj", "{E75F5988-AA08-4057-97C2-D4B292A493FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{50424EFB-5C5C-4583-8724-961CD213D3C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{50424EFB-5C5C-4583-8724-961CD213D3C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50424EFB-5C5C-4583-8724-961CD213D3C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E75F5988-AA08-4057-97C2-D4B292A493FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E75F5988-AA08-4057-97C2-D4B292A493FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E75F5988-AA08-4057-97C2-D4B292A493FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E75F5988-AA08-4057-97C2-D4B292A493FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

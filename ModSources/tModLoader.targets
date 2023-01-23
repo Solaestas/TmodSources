@@ -15,8 +15,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="$(tMLDirectory)tModLoader.dll" />
-		<Reference Include="$(tMLDirectory)Libraries\**\*.dll" />
+		<!--不要复制tML的那一大堆东西-->
+		<Reference Include="$(tMLDirectory)tModLoader.dll" Private="false" />
+		<Reference Include="$(tMLDirectory)Libraries\**\*.dll" Private="false" />
 		<Reference Remove="$(tMLDirectory)Libraries\Native\**" />
 		<Reference Remove="$(tMLDirectory)Libraries\**\runtime*\**" />
 		<Reference Remove="$(tMLDirectory)Libraries\**\*.resources.dll" />

@@ -15,7 +15,6 @@ public class SetEnableMod : Task
 	/// <summary>
 	/// 用于调试Mod的工具Mod，如Hero，CheatSheet，用;分开
 	/// </summary>
-	[Required]
 	public string HelpMods { get; set; }
 
 	/// <summary>
@@ -38,18 +37,21 @@ public class SetEnableMod : Task
 			{
 				BuildingMod,
 			}.ToArray());
-		}else
+		}
+		else
 		{
-			if(!json.Contains(BuildingMod))
+			if (!json.Contains(BuildingMod))
 			{
 				json.Add(BuildingMod);
 			}
-
-			foreach(var mod in HelpMods)
+			if (HelpMods != null)
 			{
-				if(!json.Contains(mod))
+				foreach (var mod in HelpMods)
 				{
-					json.Add(mod);
+					if (!json.Contains(mod))
+					{
+						json.Add(mod);
+					}
 				}
 			}
 		}
