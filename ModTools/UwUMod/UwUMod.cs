@@ -16,6 +16,7 @@ class TestSystem : ModPlayer
 	public override void OnEnterWorld(Player player)
 	{
 		//测试
+		var type = typeof(ModPath);
 		Main.NewText("Test");
 		(Cli.Wrap(@"powershell") | PipeTarget.ToDelegate(s =>
 		{ 

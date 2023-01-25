@@ -15,7 +15,7 @@
 		<!--tML目录-->
 		<tMLSteamPath>$(tMLDirectory)</tMLSteamPath>
 		<!--Publicizer与MonoMod的冲突了-->
-		<NoWarn>$(NoWarn), 0436</NoWarn>
+		<NoWarn>$(NoWarn);CS0436</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -32,8 +32,7 @@
 		<PackageReference Condition="'$(EnablePublicizer)' != ''" Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.0" ExcludeAssets="runtime" />
 		<Publicize Condition="'$(EnablePublicizer)' != ''" Include="tModLoader" />
 	</ItemGroup>
-	
-	
+
 	<ItemGroup>
 		<EffectFile Include="**\*.fx" />
 		<ImageFile Include="**\*.png" />
@@ -46,12 +45,15 @@
 		<!--音乐文件-->
 		<ResourceFile Include="**\*.ogg" />
 		<ResourceFile Include="**\*.mp3" />
+		<ModFile Include="$(MSBuildProjectDirectory)\build.txt;$(MSBuildProjectDirectory)\description.txt"/>
+		<AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
 	</ItemGroup>
 
 	<UsingTask TaskName="BuildEffect" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="BuildImage" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="BuildMod" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="SetEnableMod" AssemblyFile="$(TaskPath)" />
+	<UsingTask TaskName="GeneratePath" AssemblyFile="$(TaskPath)" />
 
 	<Target Name="BuildEffect" BeforeTargets="Build"
 			Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
@@ -77,7 +79,7 @@
 		</ItemGroup>
 	</Target>
 	<Target Name="BuildMod" AfterTargets="PrepareBuildMod" DependsOnTargets="PrepareBuildMod"
-			Inputs="@(ResourceFile);@(AssetFile);@(Compile)"
+			Inputs="@(ResourceFile);@(AssetFile);@(Compile);@(ModFile)"
 			Outputs="$(ModDirectory)$(AssemblyName).tmod">
 		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)\"
 				  ModName="$(AssemblyName)"
@@ -105,4 +107,14 @@
 					  HelpMods="$(HelpMods)"
 					  DisableOtherMod="$(DisableOtherMod)" />
 	</Target>
+
+	<Target Name="GeneratePath" BeforeTargets="BeforeCompile" Condition="'$(EnablePathGenerator)' != ''"
+			Inputs="@(EffectFile);@(ImageFile);@(ResourceFile)" Outputs="$(BaseIntermediateOutputPath)ModPath.g.cs">
+		<GeneratePath ModName="$(AssemblyName)"
+					  AssetFiles="@(EffectFile);@(ImageFile);@(ResourceFile)"
+					  OutputDirectory="$(BaseIntermediateOutputPath)" />
+	</Target>
+	<ItemGroup Condition="'$(EnablePathGenerator)' != ''">
+		<Compile Include="$(BaseIntermediateOutputPath)ModPath.g.cs" Visible="false" AutoGen="true"/>
+	</ItemGroup>
 </Project>
