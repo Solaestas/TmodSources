@@ -106,7 +106,6 @@ public class BuildMod : Microsoft.Build.Utilities.Task
         var set = new HashSet<string>(property.DllReferences);
         var modref = new HashSet<string>(property.ModReferences.Select(mod => mod.Mod));
         Parallel.ForEach(Directory.GetFiles(OutputDirectory, "*", SearchOption.TopDirectoryOnly)
-            .Where(s => !DefaultDependency.Contains(Path.GetFileNameWithoutExtension(s)))
             .Where(s => !modref.Contains(Path.GetFileNameWithoutExtension(s)))
             , file =>
         {
@@ -174,55 +173,4 @@ public class BuildMod : Microsoft.Build.Utilities.Task
         return false;
     }
 
-    private static readonly string[] DefaultDependency = new string[]
-    {
-        "Basic.Reference.Assemblies.Net60",
-        "CsvHelper",
-        "FNA",
-        "Hjson",
-        "Humanizer",
-        "Ionic.Zip.Reduced",
-        "log4net",
-        "Microsoft.Bcl.AsyncInterfaces",
-        "Microsoft.Build.Locator",
-        "Microsoft.CodeAnalysis.CSharp",
-        "Microsoft.CodeAnalysis.CSharp.Workspaces",
-        "Microsoft.CodeAnalysis",
-        "Microsoft.CodeAnalysis.FlowAnalysis.Utilities",
-        "Microsoft.CodeAnalysis.Workspaces",
-        "Microsoft.CodeAnalysis.Workspaces.MSBuild",
-        "Microsoft.Win32.SystemEvents",
-        "Mono.Cecil",
-        "Mono.Cecil.Mdb",
-        "Mono.Cecil.Pdb",
-        "Mono.Cecil.Rocks",
-        "MonoMod.RuntimeDetour",
-        "MonoMod.Utils",
-        "MP3Sharp",
-        "Newtonsoft.Json",
-        "NVorbis",
-        "OdeMod",
-        "RailSDK.Net",
-        "ReLogic",
-        "Steamworks.NET",
-        "SteelSeriesEngineWrapper",
-        "System.CodeDom",
-        "System.Composition.AttributedModel",
-        "System.Composition.Convention",
-        "System.Composition.Hosting",
-        "System.Composition.Runtime",
-        "System.Composition.TypedParts",
-        "System.Configuration.ConfigurationManager",
-        "System.Diagnostics.PerformanceCounter",
-        "System.Drawing.Common",
-        "System.IO.Pipelines",
-        "System.Reflection.MetadataLoadContext",
-        "System.Security.Cryptography.ProtectedData",
-        "System.Security.Permissions",
-        "System.Windows.Extensions",
-        "TerrariaHooks",
-        "tModLoader",
-        "tModPorter",
-        "UtfUnknown",
-    };
 }

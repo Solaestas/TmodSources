@@ -31,6 +31,14 @@ Setup结束后即可将模组源码放入ModSources文件夹中进行编译
 
 可以通过设置DisableOtherMod为true属性来自动禁用其他Mod，示例可以参考UwUMod
 
+## AssetPath Generator
+
+自动生成路径引用的代码，通过添加<EnablePathGenerator>启用
+
+## Publicizer
+
+使用Nuget包BepInEx.AssemblyPublicizer.MSBuild，默认添加tModLoader，通过添加<EnablePublicizer>启用
+
   # TODO
 
 Hook掉UIModSourcesItem，支持发布Mod

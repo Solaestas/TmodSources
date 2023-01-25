@@ -6,12 +6,12 @@
 		<Nullable>enable</Nullable>
 		<DisableOtherMod>true</DisableOtherMod>
 		<HelpMods>HEROsMod</HelpMods>
+		<EnablePathGenerator>true</EnablePathGenerator>
+		<EnablePublicizer>true</EnablePublicizer>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="CliWrap" Version="3.6.0" />
-		<ProjectReference Include="..\ModGenerator\ModGenerator.csproj"
-                      OutputItemType="Analyzer"
-                      ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 </Project>

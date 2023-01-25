@@ -15,7 +15,6 @@ class TestSystem : ModPlayer
 {
 	public override void OnEnterWorld(Player player)
 	{
-		var str = ModPath.ModSourcePath;
 		//测试
 		Main.NewText("Test");
 		(Cli.Wrap(@"powershell") | PipeTarget.ToDelegate(s =>
@@ -23,6 +22,9 @@ class TestSystem : ModPlayer
 			Main.NewText(s);
 		}))
 		.ExecuteAsync();
-		
+
+		var test = typeof(Terraria.ModLoader.Core.AssemblyManager.ModLoadContext);
+
+
 	}
 }
