@@ -9,9 +9,7 @@
 		<EnablePathGenerator>true</EnablePathGenerator>
 		<EnablePublicizer>true</EnablePublicizer>
 	</PropertyGroup>
-	<ItemGroup>
-	  <EffectFile Remove="Test.fx" />
-	</ItemGroup>
+
 
 
 

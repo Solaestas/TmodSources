@@ -27,6 +27,7 @@ PSInput VSFunction(VSInput input)
 {
     PSInput output;
     output.Pos = mul(float4(input.Pos, 0, 1), uTransform);
+
     output.Texcoord = input.Texcoord;
     return output;
 }

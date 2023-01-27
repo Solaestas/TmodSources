@@ -16,15 +16,13 @@ internal class Program
     {
         string[] asmNames =
         {
-            "Microsoft.Xna.Framework.dll",
-            "Microsoft.Xna.Framework.Content.Pipeline.dll",
             "Microsoft.Xna.Framework.Content.Pipeline.EffectImporter.dll",
         };
 
         var inputFiles = args[0].Split(';');    //输入文件路径
         var intermediateDirectory = args[1];
         var outputDir = args[2];                //输出文件夹
-        var asmDir = args[3];                   //程序集路径
+        var asmDir = Path.Combine(args[3], "Runtimes") + Path.DirectorySeparatorChar;                   //程序集路径
         var targetPlatform = args.ElementAtOrDefault(4);
         var targetProfile = args.ElementAtOrDefault(5);
         var buildConfiguration = args.ElementAtOrDefault(6);
