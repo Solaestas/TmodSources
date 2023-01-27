@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "Setup": {
-      "commandName": "Project",
-      "commandLineArgs": "C:\\Codes\\TmodSources"
-    }
-  }
-}
