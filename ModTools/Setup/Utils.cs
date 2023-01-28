@@ -90,6 +90,10 @@ public static partial class Utils
 			}
 		}
 
+		if(trPath == string.Empty)
+		{
+			throw new ArgumentException("Can't find terraria");
+		}
 		Console.WriteLine($"Find terraria in {trPath}");
 		return Path.GetFullPath(Path.Combine(trPath, "..", "tModLoader")) + Path.DirectorySeparatorChar;
 	}
