@@ -95,12 +95,12 @@
 	<Target Name="CleanAsset" AfterTargets="Clean">
 		<ItemGroup>
 			<!--复制BuildMod-->
-			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
-			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
+			<AssetFile Include="$(OutputPath)Assets\**\*" />
 			<IntermediateFile Include="$(IntermediateOutputPath)Assets\**\*" />
 		</ItemGroup>
 		<Delete Files="@(AssetFile)" />
 		<Delete Files="@(IntermediateFile)" />
+		<Delete Condition="'$(EnablePathGenerator)' != ''" Files="$(BaseIntermediateOutputPath)ModPath.g.cs" />
 	</Target>
 
 	<Target Name="SetEnableMod" AfterTargets="Build">

@@ -15,6 +15,14 @@ public static partial class Utils
 
 	private readonly static Regex SteamLibraryFoldersRegex = GetSteamLibraryFoldersRegex();
 	private readonly static Regex SteamManifestInstallDirRegex = GetSteamManifestInstallDirRegex();
+	public static string EnsureDirectory(string path)
+	{
+		return path switch
+		{
+			[_, '\\'] or [_, '/'] => path,
+			_ => path + Path.DirectorySeparatorChar
+		};
+	}
 	public static string FindModLoaderDirectory()
 	{
 		string steamDirectory;

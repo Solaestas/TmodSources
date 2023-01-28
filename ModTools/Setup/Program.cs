@@ -12,7 +12,7 @@ catch (Exception ex)
 {
     Console.WriteLine(ex.Message);
     Console.WriteLine("Please enter tmodloader directory : ");
-    modLoaderDirectory = Console.ReadLine()!;
+    modLoaderDirectory = Utils.EnsureDirectory(Console.ReadLine()!);
     if (!Directory.Exists(modLoaderDirectory) || !File.Exists(Path.Combine(modLoaderDirectory, "tMLMod.targets")))
     {
         throw new ArgumentException("Invalid Directory");

@@ -21,19 +21,27 @@ public class GeneratePath : Task
 		foreach (var file in AssetFiles)
 		{
 			var identity = file.GetMetadata("Identity");
-			string fieldName = file.GetMetadata("Filename");
+			string fieldName = file.GetMetadata("Filename").Replace('-', '_').Replace(" ", "");
 			if (char.IsNumber(fieldName[0]))
 			{
 				fieldName = '_' + fieldName;
 			}
+			if (GetFileType(file.ItemSpec) is string type)
+			{
 			sb.AppendLine(
+$"""
+	public const string {fieldName}Path = @"{identity[0..^Path.GetExtension(identity).Length]}";
+"""
+				);
+				sb.AppendLine($"\tpublic static Asset<{type}> {fieldName} => ModContent.Request<{type}>({fieldName}Path);");
+			}
+			else
+			{
+				sb.AppendLine(
 $"""
 	public const string {fieldName}Path = @"{identity}";
 """
-				);
-			if (GetFileType(file.ItemSpec) is string type)
-			{
-				sb.AppendLine($"\tpublic static Asset<{type}> {fieldName} => ModContent.Request<{type}>({fieldName}Path)");
+					);
 			}
 		}
 
@@ -55,7 +63,7 @@ public static class ModPath
 	}
 
 	
-	public string GetFileType(string file) => file switch
+	public string GetFileType(string file) => Path.GetExtension(file) switch
 	{
 		".png" => "Texture2D",
 		".fx" => "Effect",

@@ -70,7 +70,7 @@ public class BuildMod : Microsoft.Build.Utilities.Task
         {
             if (!File.Exists(file.ItemSpec))
             {
-                Log.LogError("File {file} not exist!", file.ItemSpec);
+                Log.LogError($"File {file.ItemSpec} not exist!");
                 success = false;
                 return;
             }
@@ -84,7 +84,7 @@ public class BuildMod : Microsoft.Build.Utilities.Task
             {
                 if (!File.Exists(file.ItemSpec))
                 {
-                    Log.LogError("File {file} not exist!", file.ItemSpec);
+                    Log.LogError($"File {file.ItemSpec} not exist!");
                     success = false;
                     return;
                 }
