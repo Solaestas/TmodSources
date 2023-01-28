@@ -61,7 +61,7 @@
 					  InputFiles="@(EffectFile)"
 					  TargetPlatform="Windows"
 					  TargetProfile="HiDef"
-				      BuildConfiguration="$(Configuration)"
+				      BuildConfiguration="Release"
 					  IntermediateDirectory="$(IntermediateOutputPath)Assets\"
 					  OutputDirectory="$(OutputPath)Assets\" />
 	</Target>

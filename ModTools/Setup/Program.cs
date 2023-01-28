@@ -1,12 +1,23 @@
-﻿using System.Diagnostics;
-using System.Xml;
-using System.Xml.Serialization;
+﻿using System.Xml;
 using Setup;
 
 var directory = AppDomain.CurrentDomain.BaseDirectory;
 directory = directory[..(directory.IndexOf("ModTools") - 1)];
-
-var modLoaderDirectory = Utils.FindModLoaderDirectory();
+string modLoaderDirectory;
+try
+{
+	modLoaderDirectory = Utils.FindModLoaderDirectory();
+}
+catch (Exception ex)
+{
+	Console.WriteLine(ex.Message);
+	Console.WriteLine("Please enter tmodloader directory : ");
+	modLoaderDirectory = Console.ReadLine()!;
+	if (!Directory.Exists(modLoaderDirectory) || !File.Exists(Path.Combine(modLoaderDirectory, "tMLMod.targets")))
+	{
+		throw new ArgumentException("Invalid Directory");
+	}
+}
 var modDirectory = Utils.FindModDirectory();
 #if DEV
 modLoaderDirectory = Path.GetFullPath(Path.Combine(modLoaderDirectory, "..", "tModLoaderDev")) + Path.DirectorySeparatorChar;
@@ -42,6 +53,7 @@ File.WriteAllText(Path.Combine(directory, "ModTools", "Config.cs"),
 
 	public static class Config
 	{
+		public const string ThisProjectDirectory = @"{{directory}}";
 		public const string ModLoaderDirectory = @"{{modLoaderDirectory}}";
 		public const string ModDirectory = @"{{modDirectory}}";
 		public const string BuildIdentifier = @"{{Utils.GetBuildIdentifier(Path.Combine(modLoaderDirectory, "tModLoader.dll"))}}";

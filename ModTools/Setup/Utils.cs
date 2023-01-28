@@ -1,47 +1,97 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
+using System.Linq;
 
 namespace Setup;
 
-public static class Utils
+public static partial class Utils
 {
+	public const int TerrariaAppId = 105600;
+
+	public readonly static string TerrariaManifestFile = $"appmanifest_{TerrariaAppId}.acf";
+
+	private readonly static Regex SteamLibraryFoldersRegex = GetSteamLibraryFoldersRegex();
+	private readonly static Regex SteamManifestInstallDirRegex = GetSteamManifestInstallDirRegex();
 	public static string FindModLoaderDirectory()
 	{
-		string path;
+		string steamDirectory;
 		if (OperatingSystem.IsWindows())
 		{
 			using var key = Registry.LocalMachine.CreateSubKey(
 				Environment.Is64BitOperatingSystem ?
 				@"SOFTWARE\Wow6432Node\Valve\Steam" :
 				@"SOFTWARE\Valve\Steam");
-			path = (string)key.GetValue("InstallPath")!;
+			steamDirectory = (string)key.GetValue("InstallPath")!;
 		}
 		else if (OperatingSystem.IsMacOS())
 		{
-			path = Path.Combine("~", "Library", "Application Support", "Steam");
+			steamDirectory = Path.Combine("~", "Library", "Application Support", "Steam");
 		}
 		else if (OperatingSystem.IsLinux())
 		{
-			path = Path.Combine("~", ".local", "share", "Steam");
+			steamDirectory = Path.Combine("~", ".local", "share", "Steam");
 		}
 		else
 		{
-			Console.WriteLine("Unknown OperatingSystem, try enter the tml path");
-			path = Console.ReadLine()!;
+			Console.WriteLine("Unknown OperatingSystem, try enter steam path");
+			steamDirectory = Console.ReadLine()!;
 		}
-		path = Path.Combine(path, "steamapps", "common", "tModLoader");
-
-		if (!Directory.Exists(path))
+		if (!Directory.Exists(steamDirectory))
 		{
-			Console.WriteLine("tModLoader not found, try enter the tml path");
-			path = Console.ReadLine()!;
-			if (!Directory.Exists(path))
+			if (!Directory.Exists(steamDirectory))
 			{
-				throw new Exception("Not Found");
+				throw new ArgumentException("Invalid Steam Path");
 			}
 		}
-		return path + Path.DirectorySeparatorChar;
+
+		Console.WriteLine($"Find steam in {steamDirectory}");
+		string steamApps = Path.Combine(steamDirectory, "steamapps");
+
+		var libraries = new List<string>() {
+				steamApps
+			};
+
+		string libraryFoldersFile = Path.Combine(steamApps, "libraryfolders.vdf");
+
+		if (File.Exists(libraryFoldersFile))
+		{
+			string contents = File.ReadAllText(libraryFoldersFile);
+
+			var matches = SteamLibraryFoldersRegex.Matches(contents);
+			libraries.AddRange(from Match match in matches
+							   let directory = Path.Combine(match.Groups[2].Value.Replace(@"\\", @"\"), "steamapps")
+							   where Directory.Exists(directory)
+							   select directory);
+		}
+
+		string trPath = string.Empty;
+		for (int i = 0; i < libraries.Count; i++)
+		{
+			string directory = libraries[i];
+			string manifestPath = Path.Combine(directory, TerrariaManifestFile);
+
+			if (File.Exists(manifestPath))
+			{
+				string contents = File.ReadAllText(manifestPath);
+				var match = SteamManifestInstallDirRegex.Match(contents);
+
+				if (match.Success)
+				{
+					trPath = Path.Combine(directory, "common", match.Groups[1].Value);
+
+					if (!Directory.Exists(trPath))
+					{
+						throw new ArgumentException("can't find terraria");
+					}
+				}
+			}
+		}
+
+		Console.WriteLine($"Find terraria in {trPath}");
+		return Path.GetFullPath(Path.Combine(trPath, "..", "tModLoader")) + Path.DirectorySeparatorChar;
 	}
 
 	public static string FindModDirectory()
@@ -65,8 +115,10 @@ public static class Utils
 		string[] runtimeAssemblies = Directory.GetFiles(RuntimeEnvironment.GetRuntimeDirectory(), "*.dll");
 
 		// Create the list of assembly paths consisting of runtime assemblies and the inspected assembly.
-		var paths = new List<string>(runtimeAssemblies);
-		paths.Add(tmlPath);
+		var paths = new List<string>(runtimeAssemblies)
+		{
+			tmlPath
+		};
 
 		// Create PathAssemblyResolver that can resolve assemblies using the created list.
 		var resolver = new PathAssemblyResolver(paths);
@@ -76,4 +128,9 @@ public static class Utils
 			.First(c => c.AttributeType.Name == nameof(AssemblyInformationalVersionAttribute))
 			.ConstructorArguments[0].Value!;
 	}
+
+	[GeneratedRegex("\"installdir\"[^\\S\\r\\n]+\"([^\\r\\n]+)\"", RegexOptions.Compiled)]
+	private static partial Regex GetSteamManifestInstallDirRegex();
+	[GeneratedRegex("\"(\\d+)\"[^\\S\\r\\n]+\"(.+)\"", RegexOptions.Compiled)]
+	private static partial Regex GetSteamLibraryFoldersRegex();
 }
