@@ -26,7 +26,6 @@ internal class CustomSourceItem : UIModSourceItem
 	private string _csproj;
 	private new readonly string _modName;
 	private int _contextButtonsLeft = -26;
-	private bool _publishButtonCreated = false;
 
 	public CustomSourceItem(string modFolder, string modName, string csproj, LocalMod builtMod) : base(modFolder, builtMod)
 	{

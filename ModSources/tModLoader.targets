@@ -31,6 +31,7 @@
 		<!--神奇妙妙包-->
 		<PackageReference Condition="'$(EnablePublicizer)' != ''" Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.0" ExcludeAssets="runtime" />
 		<Publicize Condition="'$(EnablePublicizer)' != ''" Include="tModLoader" />
+		<Publicize Condition="'$(EnablePublicizer)' != ''" Include="MonoMod.RuntimeDetour" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,7 +46,7 @@
 		<!--音乐文件-->
 		<ResourceFile Include="**\*.ogg" />
 		<ResourceFile Include="**\*.mp3" />
-		<ModFile Include="$(MSBuildProjectDirectory)\build.txt;$(MSBuildProjectDirectory)\description.txt"/>
+		<ModFile Include="$(MSBuildProjectDirectory)\build.txt;$(MSBuildProjectDirectory)\description.txt" />
 		<AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
 	</ItemGroup>
 
@@ -115,6 +116,6 @@
 					  OutputDirectory="$(BaseIntermediateOutputPath)" />
 	</Target>
 	<ItemGroup Condition="'$(EnablePathGenerator)' != ''">
-		<Compile Include="$(BaseIntermediateOutputPath)ModPath.g.cs" Visible="false" AutoGen="true"/>
+		<Compile Include="$(BaseIntermediateOutputPath)ModPath.g.cs" Visible="false" AutoGen="true" />
 	</ItemGroup>
 </Project>
