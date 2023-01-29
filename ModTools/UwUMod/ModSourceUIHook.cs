@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using System.Xml;
 using ModTools;
@@ -17,7 +17,8 @@ public class ModSourceUIHook : ILoadable
 	public void Load(Mod mod)
 	{
 		MonoModHooks.RequestNativeAccess();
-		var method = typeof(UIModSources).GetMethod(nameof(UIModSources.Populate),
+		var method = typeof(UIModSources).GetMethod(
+			nameof(UIModSources.Populate),
 			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 		_hooks.Add(new Hook(method, (Action<UIModSources> orig, UIModSources self) =>
 		{
@@ -76,29 +77,32 @@ public class ModSourceUIHook : ILoadable
 						RedirectStandardOutput = true,
 						StandardOutputEncoding = Encoding.UTF8,
 						StandardErrorEncoding = Encoding.UTF8,
-					}
+					},
 				};
 				var sb = new StringBuilder();
 				proc.Start();
 				var output = proc.StandardOutput;
 				var error = proc.StandardError;
-				Task.WaitAll(proc.WaitForExitAsync(),
-				Task.Run(() =>
-				{
-					do
+				Task.WaitAll(
+					proc.WaitForExitAsync(),
+					Task.Run(() =>
 					{
-						string? msg = output.ReadLine();
-						self.status.SetStatus(msg);
-					} while (!output.EndOfStream || !proc.HasExited);
-				}),
-				Task.Run(() =>
-				{
-					do
+						do
+						{
+							string? msg = output.ReadLine();
+							self.status.SetStatus(msg);
+						}
+						while (!output.EndOfStream || !proc.HasExited);
+					}),
+					Task.Run(() =>
 					{
-						string? msg = error.ReadLine();
-						sb.AppendLine(msg);
-					} while (!error.EndOfStream || !proc.HasExited);
-				}));
+						do
+						{
+							string? msg = error.ReadLine();
+							sb.AppendLine(msg);
+						}
+						while (!error.EndOfStream || !proc.HasExited);
+					}));
 
 				if (sb.Length > 2)
 				{

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+using System;
 using CliWrap;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -60,7 +59,7 @@ public class BuildEffect : Task
 			BuilderDirectory,
 			TargetPlatform,
 			TargetProfile,
-			BuildConfiguration
+			BuildConfiguration,
 		})
 		| PipeTarget.ToDelegate(s =>
 		{
@@ -89,7 +88,7 @@ public enum MessageType
 {
 	Error,
 	Warning,
-	Message
+	Message,
 }
 
 public class BuildEventArgsConverter : JsonConverter<LazyFormattedBuildEventArgs>
@@ -112,7 +111,6 @@ public class BuildEventArgsConverter : JsonConverter<LazyFormattedBuildEventArgs
 				obj[nameof(BuildErrorEventArgs.ColumnNumber)].Value<int>(),
 				obj[nameof(BuildErrorEventArgs.EndLineNumber)].Value<int>(),
 				obj[nameof(BuildErrorEventArgs.EndColumnNumber)].Value<int>(),
-				//string.Join("\n", obj[nameof(BuildErrorEventArgs.Message)].Value<string>().Split('\n').Where(s => !s.Contains("Errors compiling"))),
 				obj[nameof(BuildErrorEventArgs.Message)].Value<string>(),
 				obj[nameof(BuildErrorEventArgs.HelpKeyword)].Value<string>(),
 				obj[nameof(BuildErrorEventArgs.SenderName)].Value<string>(),
@@ -134,8 +132,7 @@ public class BuildEventArgsConverter : JsonConverter<LazyFormattedBuildEventArgs
 				obj[nameof(BuildMessageEventArgs.HelpKeyword)].Value<string>(),
 				obj[nameof(BuildMessageEventArgs.SenderName)].Value<string>(),
 				(MessageImportance)obj[nameof(BuildMessageEventArgs.Importance)].Value<int>(),
-				obj[nameof(BuildMessageEventArgs.Timestamp)].ToObject<DateTime>()
-				),
+				obj[nameof(BuildMessageEventArgs.Timestamp)].ToObject<DateTime>()),
 			_ => throw new NotImplementedException(),
 		};
 	}

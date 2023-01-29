@@ -56,8 +56,7 @@
 	<UsingTask TaskName="SetEnableMod" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="GeneratePath" AssemblyFile="$(TaskPath)" />
 
-	<Target Name="BuildEffect" BeforeTargets="Build"
-			Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
+	<Target Name="BuildEffect" BeforeTargets="Build" Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
 		<BuildEffect BuilderDirectory="$(ContentBuilderDirectory)"
 					  InputFiles="@(EffectFile)"
 					  TargetPlatform="Windows"
@@ -67,21 +66,18 @@
 					  OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
 
-	<Target Name="BuildImage" BeforeTargets="Build"
-			Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')">
+	<Target Name="BuildImage" BeforeTargets="Build" Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')">
 		<BuildImage InputFiles="@(ImageFile)" OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
 
-	<Target Name="PrepareBuildMod" AfterTargets="Build">
+	<Target Name="PrepareBuildMod" BeforeTargets="Build">
 		<ItemGroup>
 			<!--在此Include可以使模组csproj对ImageFile和EffectFile的修改生效-->
 			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
 			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
 		</ItemGroup>
 	</Target>
-	<Target Name="BuildMod" AfterTargets="PrepareBuildMod" DependsOnTargets="PrepareBuildMod"
-			Inputs="@(ResourceFile);@(AssetFile);@(Compile);@(ModFile)"
-			Outputs="$(ModDirectory)$(AssemblyName).tmod">
+	<Target Name="BuildMod" AfterTargets="Build" Inputs="@(ResourceFile);@(AssetFile);@(Compile);@(ModFile)" Outputs="$(ModDirectory)$(AssemblyName).tmod">
 		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)\"
 				  ModName="$(AssemblyName)"
 				  OutputDirectory="$(OutputPath)"
@@ -92,14 +88,9 @@
 				  ResourceFiles="@(ResourceFile)" />
 	</Target>
 
-	<Target Name="CleanAsset" AfterTargets="Clean">
-		<ItemGroup>
-			<!--复制BuildMod-->
-			<AssetFile Include="$(OutputPath)Assets\**\*" />
-			<IntermediateFile Include="$(IntermediateOutputPath)Assets\**\*" />
-		</ItemGroup>
-		<Delete Files="@(AssetFile)" />
-		<Delete Files="@(IntermediateFile)" />
+	<Target Name="CleanAsset" BeforeTargets="Clean">
+		<Delete Files="$(OutputPath)Assets" />
+		<Delete Files="$(IntermediateOutput)Assets" />
 		<Delete Condition="'$(EnablePathGenerator)' != ''" Files="$(BaseIntermediateOutputPath)ModPath.g.cs" />
 	</Target>
 
@@ -109,8 +100,8 @@
 					  DisableOtherMod="$(DisableOtherMod)" />
 	</Target>
 
-	<Target Name="GeneratePath" BeforeTargets="BeforeCompile" Condition="'$(EnablePathGenerator)' != ''"
-			Inputs="@(EffectFile);@(ImageFile);@(ResourceFile)" Outputs="$(BaseIntermediateOutputPath)ModPath.g.cs">
+	<Target Name="GeneratePath" BeforeTargets="BeforeCompile" Condition="'$(EnablePathGenerator)' != ''">
+		<Message Importance="high" Text="Adding ModPath" />
 		<GeneratePath ModName="$(AssemblyName)"
 					  AssetFiles="@(EffectFile);@(ImageFile);@(ResourceFile)"
 					  OutputDirectory="$(BaseIntermediateOutputPath)" />

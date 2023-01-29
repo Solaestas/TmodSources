@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
@@ -59,19 +59,14 @@ public static class ImageIO
 	{
 		var image = Image.Load<Rgba32>(source);
 		using BinaryWriter writer = new BinaryWriter(destination);
-		//不知道为啥要写一个1进去
+
+		// 不知道为啥要写一个1进去
 		writer.Write(1);
 		int width = image.Width;
 		int height = image.Height;
 		writer.Write(width);
 		writer.Write(height);
-		for (int i = 0; i < width; i++)
-		{
-			for (int j = 0; j < height; j++)
-			{
-				var color = image[i, j];
-			}
-		}
+
 		image.ProcessPixelRows(accessor =>
 		{
 			for (int i = 0; i < accessor.Height; i++)
@@ -80,10 +75,11 @@ public static class ImageIO
 				{
 					if (color.A == 0)
 					{
-						//直接写入四字节的int 0
+						// 直接写入四字节的int 0
 						writer.Write(0);
 						continue;
 					}
+
 					writer.Write(color.R);
 					writer.Write(color.G);
 					writer.Write(color.B);

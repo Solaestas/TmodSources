@@ -1,21 +1,13 @@
 using System.Diagnostics;
-using System.Net;
 using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ModTools;
-using ReLogic.Content;
 using ReLogic.OS;
-using Terraria;
-using Terraria.Audio;
 using Terraria.GameContent.UI.Elements;
-using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 using Terraria.ModLoader.UI;
-using Terraria.ModLoader.UI.ModBrowser;
-using Terraria.Social.Steam;
 using Terraria.UI;
 
 namespace UwUMod;
@@ -24,10 +16,11 @@ internal class CustomSourceItem : UIModSourceItem
 {
 	private string _modFolder;
 	private string _csproj;
-	private new readonly string _modName;
+	private new string _modName;
 	private int _contextButtonsLeft = -26;
 
-	public CustomSourceItem(string modFolder, string modName, string csproj, LocalMod builtMod) : base(modFolder, builtMod)
+	public CustomSourceItem(string modFolder, string modName, string csproj, LocalMod builtMod)
+		: base(modFolder, builtMod)
 	{
 		Elements.Clear();
 		_modFolder = modFolder;
@@ -42,7 +35,7 @@ internal class CustomSourceItem : UIModSourceItem
 		var _modNameUI = new UIText(modName)
 		{
 			Left = { Pixels = 10 },
-			Top = { Pixels = 5 }
+			Top = { Pixels = 5 },
 		};
 		Append(_modNameUI);
 
@@ -51,7 +44,7 @@ internal class CustomSourceItem : UIModSourceItem
 			Width = { Pixels = 100 },
 			Height = { Pixels = 36 },
 			Left = { Pixels = 10 },
-			Top = { Pixels = 40 }
+			Top = { Pixels = 40 },
 		}.WithFadedMouseOver();
 		buildButton.PaddingTop -= 2f;
 		buildButton.PaddingBottom -= 2f;
@@ -91,16 +84,15 @@ internal class CustomSourceItem : UIModSourceItem
 		var openCSProjButton = new UIHoverImage(UICommon.CopyCodeButtonTexture, "Open .csproj")
 		{
 			Left = { Pixels = _contextButtonsLeft, Percent = 1f },
-			Top = { Pixels = 4 }
+			Top = { Pixels = 4 },
 		};
 		openCSProjButton.OnClick += (a, b) =>
 		{
 			Process.Start(
 				new ProcessStartInfo(_csproj)
 				{
-					UseShellExecute = true
-				}
-			);
+					UseShellExecute = true,
+				});
 		};
 		Append(openCSProjButton);
 
@@ -129,7 +121,7 @@ internal class CustomSourceItem : UIModSourceItem
 			var portModButton = new UIHoverImage(pIcon, Language.GetTextValue("tModLoader.MSPortToLatest"))
 			{
 				Left = { Pixels = _contextButtonsLeft, Percent = 1f },
-				Top = { Pixels = 4 }
+				Top = { Pixels = 4 },
 			};
 
 			portModButton.OnClick += (s, e) =>
@@ -145,7 +137,7 @@ internal class CustomSourceItem : UIModSourceItem
 				{
 					FileName = porterPath,
 					Arguments = args,
-					UseShellExecute = true
+					UseShellExecute = true,
 				};
 
 				var porter = Process.Start(porterInfo);
@@ -178,11 +170,20 @@ internal class CustomSourceItem : UIModSourceItem
 			return -1;
 		}
 		if (uIModSourceItem._builtMod == null && _builtMod == null)
+		{
 			return _modName.CompareTo(uIModSourceItem._modName);
+		}
+
 		if (uIModSourceItem._builtMod == null)
+		{
 			return -1;
+		}
+
 		if (_builtMod == null)
+		{
 			return 1;
+		}
+
 		return uIModSourceItem._builtMod.lastModified.CompareTo(_builtMod.lastModified);
 	}
 }

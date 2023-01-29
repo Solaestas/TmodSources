@@ -1,9 +1,7 @@
-﻿using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using System.Linq;
 
 namespace Setup;
 
@@ -98,7 +96,7 @@ public static partial class Utils
 			}
 		}
 
-		if(trPath == string.Empty)
+		if (trPath == string.Empty)
 		{
 			throw new ArgumentException("Can't find terraria");
 		}

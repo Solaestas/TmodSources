@@ -1,4 +1,4 @@
-﻿namespace ModTools.ModLoader;
+namespace ModTools.ModLoader;
 
 /// <summary>
 /// A ModSide enum defines how mods are synced between clients and servers. You can set your mod's
@@ -35,5 +35,5 @@ public enum ModSide
 	/// connects to a server and both have this mod, then IDs will still be synchronized. This is
 	/// useful if you want optional extra features when both the client and server have this mod.
 	/// </summary>
-	NoSync
+	NoSync,
 }

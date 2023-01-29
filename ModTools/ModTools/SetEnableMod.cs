@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -13,12 +13,12 @@ public class SetEnableMod : Task
 	public string BuildingMod { get; set; }
 
 	/// <summary>
-	/// 用于调试Mod的工具Mod，如Hero，CheatSheet，用;分开
+	/// 用于调试Mod的工具Mod，如Hero，CheatSheet，用;分开.
 	/// </summary>
 	public string HelpMods { get; set; }
 
 	/// <summary>
-	/// 是否禁用其他Mod
+	/// 是否禁用其他Mod.
 	/// </summary>
 	public bool DisableOtherMod { get; set; }
 
@@ -30,6 +30,7 @@ public class SetEnableMod : Task
 		{
 			json = JArray.Parse(File.ReadAllText(path));
 		}
+
 		using var writer = File.CreateText(path);
 		if (DisableOtherMod)
 		{
@@ -44,6 +45,7 @@ public class SetEnableMod : Task
 			{
 				json.Add(BuildingMod);
 			}
+
 			if (HelpMods != null)
 			{
 				foreach (var mod in HelpMods)
