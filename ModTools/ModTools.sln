@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UwUMod", "UwUMod\UwUMod.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "解决方案项", "解决方案项", "{BB41C3F3-8B4E-431F-827D-84F518A749C7}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\Config\C#\.editorconfig = ..\..\Config\C#\.editorconfig
+		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
 Global
