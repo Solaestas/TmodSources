@@ -89,7 +89,16 @@ public class ModSourceUIHook : ILoadable
 					{
 						do
 						{
-							string? msg = output.ReadLine();
+							var msg = output.ReadLine() ?? string.Empty;
+							if(msg.Contains("): warning"))
+							{
+								continue;
+							}
+							var index = msg.IndexOf("->");
+							if(index >= 0)
+							{
+								msg = msg[..index];
+							}
 							self.status.SetStatus(msg);
 						}
 						while (!output.EndOfStream || !proc.HasExited);

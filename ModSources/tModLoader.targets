@@ -89,9 +89,12 @@
 	</Target>
 
 	<Target Name="CleanAsset" BeforeTargets="Clean">
-		<Delete Files="$(OutputPath)Assets" />
-		<Delete Files="$(IntermediateOutput)Assets" />
-		<Delete Condition="'$(EnablePathGenerator)' != ''" Files="$(BaseIntermediateOutputPath)ModPath.g.cs" />
+		<ItemGroup>
+			<DeleteFile Include="$(OutputPath)Assets\**\*" />
+			<DeleteFile Include="$(IntermediateOutput)Assets" />
+			<DeleteFile Condition="'$(EnablePathGenerator)' != ''" Files="$(BaseIntermediateOutputPath)ModPath.g.cs" />
+		</ItemGroup>
+		<Delete Files="@(DeleteFile)" />
 	</Target>
 
 	<Target Name="SetEnableMod" AfterTargets="Build">
@@ -101,7 +104,6 @@
 	</Target>
 
 	<Target Name="GeneratePath" BeforeTargets="BeforeCompile" Condition="'$(EnablePathGenerator)' != ''">
-		<Message Importance="high" Text="Adding ModPath" />
 		<GeneratePath ModName="$(AssemblyName)"
 					  AssetFiles="@(EffectFile);@(ImageFile);@(ResourceFile)"
 					  OutputDirectory="$(BaseIntermediateOutputPath)" />
