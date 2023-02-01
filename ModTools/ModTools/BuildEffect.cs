@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CliWrap;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -50,8 +51,8 @@ public class BuildEffect : Task
 	{
 		bool success = true;
 		Log.LogMessage(MessageImportance.High, "Building Effects...");
-		var cli = Cli.Wrap($"{BuilderDirectory}ContentBuilder.exe")
-		.WithArguments(new string[]
+		var filename = $"{BuilderDirectory}ContentBuilder.exe";
+		var args = new List<string>()
 		{
 			InputFiles,
 			IntermediateDirectory,
@@ -60,9 +61,17 @@ public class BuildEffect : Task
 			TargetPlatform,
 			TargetProfile,
 			BuildConfiguration,
-		})
+		};
+		var isLinux = Environment.OSVersion.Platform == PlatformID.Unix;
+		if (isLinux)
+		{
+			args.Insert(0, filename);
+			filename = "wine";
+		}
+		var cli = Cli.Wrap(filename).WithArguments(args)
 		| PipeTarget.ToDelegate(s =>
 		{
+			Log.LogMessage(MessageImportance.High, s);
 			var args = JsonConvert.DeserializeObject<LazyFormattedBuildEventArgs>(s, new BuildEventArgsConverter());
 			if (args is BuildMessageEventArgs msg)
 			{
@@ -84,69 +93,3 @@ public class BuildEffect : Task
 	}
 }
 
-public enum MessageType
-{
-	Error,
-	Warning,
-	Message,
-}
-
-public class BuildEventArgsConverter : JsonConverter<LazyFormattedBuildEventArgs>
-{
-	public override LazyFormattedBuildEventArgs ReadJson(JsonReader reader, Type objectType, LazyFormattedBuildEventArgs existingValue, bool hasExistingValue, JsonSerializer serializer)
-	{
-		if (hasExistingValue)
-		{
-			throw new NotImplementedException();
-		}
-
-		var obj = JObject.Load(reader);
-		return (MessageType)obj["Type"].Value<int>() switch
-		{
-			MessageType.Error => new BuildErrorEventArgs(
-				obj[nameof(BuildErrorEventArgs.Subcategory)].Value<string>(),
-				obj[nameof(BuildErrorEventArgs.Code)].Value<string>(),
-				obj[nameof(BuildErrorEventArgs.File)].Value<string>(),
-				obj[nameof(BuildErrorEventArgs.LineNumber)].Value<int>(),
-				obj[nameof(BuildErrorEventArgs.ColumnNumber)].Value<int>(),
-				obj[nameof(BuildErrorEventArgs.EndLineNumber)].Value<int>(),
-				obj[nameof(BuildErrorEventArgs.EndColumnNumber)].Value<int>(),
-				obj[nameof(BuildErrorEventArgs.Message)].Value<string>(),
-				obj[nameof(BuildErrorEventArgs.HelpKeyword)].Value<string>(),
-				obj[nameof(BuildErrorEventArgs.SenderName)].Value<string>(),
-				obj[nameof(BuildErrorEventArgs.Timestamp)].ToObject<DateTime>()),
-			MessageType.Warning => new BuildWarningEventArgs(
-				obj[nameof(BuildWarningEventArgs.Subcategory)].Value<string>(),
-				obj[nameof(BuildWarningEventArgs.Code)].Value<string>(),
-				obj[nameof(BuildWarningEventArgs.File)].Value<string>(),
-				obj[nameof(BuildWarningEventArgs.LineNumber)].Value<int>(),
-				obj[nameof(BuildWarningEventArgs.ColumnNumber)].Value<int>(),
-				obj[nameof(BuildWarningEventArgs.EndLineNumber)].Value<int>(),
-				obj[nameof(BuildWarningEventArgs.EndColumnNumber)].Value<int>(),
-				obj[nameof(BuildWarningEventArgs.Message)].Value<string>(),
-				obj[nameof(BuildWarningEventArgs.HelpKeyword)].Value<string>(),
-				obj[nameof(BuildWarningEventArgs.SenderName)].Value<string>(),
-				obj[nameof(BuildWarningEventArgs.Timestamp)].ToObject<DateTime>()),
-			MessageType.Message => new BuildMessageEventArgs(
-				obj[nameof(BuildMessageEventArgs.Message)].Value<string>(),
-				obj[nameof(BuildMessageEventArgs.HelpKeyword)].Value<string>(),
-				obj[nameof(BuildMessageEventArgs.SenderName)].Value<string>(),
-				(MessageImportance)obj[nameof(BuildMessageEventArgs.Importance)].Value<int>(),
-				obj[nameof(BuildMessageEventArgs.Timestamp)].ToObject<DateTime>()),
-			_ => throw new NotImplementedException(),
-		};
-	}
-
-	public override void WriteJson(JsonWriter writer, LazyFormattedBuildEventArgs value, JsonSerializer serializer)
-	{
-		var json = JObject.FromObject(value);
-		json.Add(new JProperty("Type", value switch
-		{
-			BuildMessageEventArgs => MessageType.Message,
-			BuildWarningEventArgs => MessageType.Warning,
-			BuildErrorEventArgs => MessageType.Error,
-			_ => throw new NotImplementedException()
-		}));
-		json.WriteTo(writer);
-	}
-}

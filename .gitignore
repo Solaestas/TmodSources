@@ -7,6 +7,7 @@
 Config.props
 ModTools/Config.cs
 ModSources/
+ModTools/Publish/
 
 
 # User-specific files

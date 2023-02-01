@@ -34,11 +34,11 @@ public static partial class Utils
 		}
 		else if (OperatingSystem.IsMacOS())
 		{
-			steamDirectory = Path.Combine("~", "Library", "Application Support", "Steam");
+			steamDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Library", "Application Support", "Steam");
 		}
 		else if (OperatingSystem.IsLinux())
 		{
-			steamDirectory = Path.Combine("~", ".local", "share", "Steam");
+			steamDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".local", "share", "Steam");
 		}
 		else
 		{
@@ -47,10 +47,7 @@ public static partial class Utils
 		}
 		if (!Directory.Exists(steamDirectory))
 		{
-			if (!Directory.Exists(steamDirectory))
-			{
-				throw new ArgumentException("Invalid Steam Path");
-			}
+			throw new ArgumentException("Invalid Steam Path");
 		}
 
 		Console.WriteLine($"Find steam in {steamDirectory}");
@@ -106,7 +103,36 @@ public static partial class Utils
 
 	public static string FindModDirectory()
 	{
-		string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "My Games", "Terraria", "tModLoader", "Mods") + Path.DirectorySeparatorChar;
+		string path;
+		if (OperatingSystem.IsWindows())
+		{
+			path = Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+				"My Games",
+				"Terraria",
+				"tModLoader",
+				"Mods") + Path.DirectorySeparatorChar;
+		}
+		else if (OperatingSystem.IsLinux())
+		{
+			path = Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+				".local",
+				"share",
+				"Terraria",
+				"tModLoader",
+				"Mods") + Path.DirectorySeparatorChar;
+		}
+		else
+		{
+			Console.WriteLine("Unknown operating system, please enter the mod folder path :");
+			path = Console.ReadLine()!;
+			if (!Directory.Exists(path))
+			{
+				throw new ArgumentException("Invalid Directory");
+			}
+		}
+
 		if (!Directory.Exists(path))
 		{
 			Console.WriteLine("Mod Folder not found, try enter the tml path");
