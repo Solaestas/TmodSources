@@ -12,14 +12,13 @@ namespace UwUMod;
 
 public class ModSourceUIHook : ILoadable
 {
-	private List<IDetour> _hooks = new List<IDetour>();
+	private List<IDisposable> _hooks = new();
 
 	public void Load(Mod mod)
 	{
-		MonoModHooks.RequestNativeAccess();
 		var method = typeof(UIModSources).GetMethod(
 			nameof(UIModSources.Populate),
-			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
 		_hooks.Add(new Hook(method, (Action<UIModSources> orig, UIModSources self) =>
 		{
 			var modSources = Directory.GetDirectories(Path.Combine(Config.ThisProjectDirectory, "ModSources"));
@@ -54,7 +53,7 @@ public class ModSourceUIHook : ILoadable
 		method = typeof(ModCompile).GetMethod(
 			nameof(ModCompile.Build),
 			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
-			new Type[] { typeof(ModCompile.BuildingMod) });
+			new Type[] { typeof(ModCompile.BuildingMod) })!;
 		_hooks.Add(new Hook(method, (Action<ModCompile, ModCompile.BuildingMod> orig, ModCompile self, ModCompile.BuildingMod mod) =>
 		{
 			if (!Path.GetFullPath(mod.path).StartsWith(Config.ThisProjectDirectory, StringComparison.OrdinalIgnoreCase))
@@ -90,12 +89,12 @@ public class ModSourceUIHook : ILoadable
 						do
 						{
 							var msg = output.ReadLine() ?? string.Empty;
-							if(msg.Contains("): warning"))
+							if (msg.Contains("): warning"))
 							{
 								continue;
 							}
 							var index = msg.IndexOf("->");
-							if(index >= 0)
+							if (index >= 0)
 							{
 								msg = msg[..index];
 							}

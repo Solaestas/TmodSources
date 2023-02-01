@@ -19,11 +19,11 @@ Setup结束后即可将模组源码放入ModSources文件夹中进行编译
 
 ## Resource
 
-默认情况根据build.txt打包资源，可以设置<IgnoreBuildFile>属性为true来启用自定义打包
+默认情况根据build.txt打包资源，可以设置\<IgnoreBuildFile\>属性为true来启用自定义打包
 
 >   自定义打包中不会读取全部文件然后无视部分文件，而是会打包所有ItemGroup - ResourceFile所包含的文件
 >
->   如果需要向ResourceFile添加文件，可以向csproj添加<ResourceFile Include="" />
+>   如果需要向ResourceFile添加文件，可以向csproj添加\<ResourceFile Include="" /\>
 
 ## Enable Mod
 

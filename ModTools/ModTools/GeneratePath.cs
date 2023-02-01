@@ -32,7 +32,7 @@ public class GeneratePath : Task
 			{
 				sb.AppendLine(
 				$"""
-					public const string {fieldName}Path = @"{identity[0..^Path.GetExtension(identity).Length]}";
+					public const string {fieldName}Path = @"{ModName}/{identity[0..^Path.GetExtension(identity).Length].Replace('\\', '/')}";
 				""");
 				sb.AppendLine($"\tpublic static Asset<{type}> {fieldName} => ModContent.Request<{type}>({fieldName}Path);");
 			}
