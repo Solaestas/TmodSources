@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -76,4 +76,3 @@ public class BuildEngine : IBuildEngine
 
 	public void LogWarningEvent(BuildWarningEventArgs e) => Console.WriteLine(JsonConvert.SerializeObject(e, settings));
 }
-

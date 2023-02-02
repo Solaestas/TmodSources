@@ -9,7 +9,7 @@ public enum MessageType
 {
 	Error,
 	Warning,
-	Message
+	Message,
 }
 
 public class BuildEventArgsConverter : JsonConverter<BuildEventArgs>
@@ -53,8 +53,7 @@ public class BuildEventArgsConverter : JsonConverter<BuildEventArgs>
 				obj[nameof(BuildMessageEventArgs.HelpKeyword)].Value<string>(),
 				obj[nameof(BuildMessageEventArgs.SenderName)].Value<string>(),
 				(MessageImportance)obj[nameof(BuildMessageEventArgs.Importance)].Value<int>(),
-				obj[nameof(BuildMessageEventArgs.Timestamp)].ToObject<DateTime>()
-				),
+				obj[nameof(BuildMessageEventArgs.Timestamp)].ToObject<DateTime>()),
 			_ => throw new NotImplementedException(),
 		};
 	}

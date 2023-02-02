@@ -1,4 +1,4 @@
-﻿using System.Xml;
+using System.Xml;
 using Setup;
 
 var directory = AppDomain.CurrentDomain.BaseDirectory;

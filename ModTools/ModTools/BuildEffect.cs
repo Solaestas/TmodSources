@@ -71,8 +71,7 @@ public class BuildEffect : Task
 		var cli = Cli.Wrap(filename).WithArguments(args)
 		| PipeTarget.ToDelegate(s =>
 		{
-			Log.LogMessage(MessageImportance.High, s);
-			var args = JsonConvert.DeserializeObject<LazyFormattedBuildEventArgs>(s, new BuildEventArgsConverter());
+			var args = JsonConvert.DeserializeObject<BuildEventArgs>(s, new BuildEventArgsConverter());
 			if (args is BuildMessageEventArgs msg)
 			{
 				BuildEngine.LogMessageEvent(msg);
@@ -83,7 +82,6 @@ public class BuildEffect : Task
 			}
 			else if (args is BuildErrorEventArgs error)
 			{
-				Log.LogMessage(MessageImportance.High, $"{DateTime.Now} : {error.Message}");
 				BuildEngine.LogErrorEvent(error);
 				success = false;
 			}
@@ -92,4 +90,3 @@ public class BuildEffect : Task
 		return success;
 	}
 }
-
