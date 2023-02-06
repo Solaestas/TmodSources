@@ -53,7 +53,7 @@ public class BuildEngine : IBuildEngine
 	private static readonly JsonSerializerSettings settings = new JsonSerializerSettings()
 	{
 		Converters = { new BuildEventArgsConverter() },
-		Formatting = Formatting.Indented
+		Formatting = Formatting.None, // Must be None
 	};
 	public bool ContinueOnError => false;
 

@@ -34,7 +34,7 @@ public class GeneratePath : Task
 				$"""
 					public const string {fieldName}Path = @"{ModName}/{identity[0..^Path.GetExtension(identity).Length].Replace('\\', '/')}";
 				""");
-				sb.AppendLine($"\tpublic static Asset<{type}> {fieldName} => ModContent.Request<{type}>({fieldName}Path);");
+				sb.AppendLine($"\tpublic static Asset<{type}> {fieldName} => ModContent.Request<{type}>({fieldName}Path, AssetRequestMode.ImmediateLoad);");
 			}
 			else
 			{

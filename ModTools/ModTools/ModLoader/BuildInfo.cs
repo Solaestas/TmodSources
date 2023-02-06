@@ -1,4 +1,4 @@
-#define DEV // 目前preview分支就是DEV
+//#define DEV // 目前preview分支就是DEV
 
 using System;
 
