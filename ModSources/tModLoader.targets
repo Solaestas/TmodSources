@@ -1,53 +1,10 @@
 <Project ToolsVersion="14.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-	<!-- 导入tML路径 -->
-	<Import Project="..\Config.props" />
-	<PropertyGroup>
-		<ToolsDirectory>$(MSBuildThisFileDirectory)..\ModTools\Publish\</ToolsDirectory>
-		<TaskPath>$(ToolsDirectory)ModTools\ModTools.dll</TaskPath>
-		<ContentBuilderDirectory>$(ToolsDirectory)ContentBuilder\</ContentBuilderDirectory>
-		<!--消除架构警告-->
-		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-		<!--复制包里面的程序集到输出目录-->
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<!--tML程序集路径-->
-		<tMLPath>$(tMLDirectory)\tModLoader.dll</tMLPath>
-		<!--tML目录-->
-		<tMLSteamPath>$(tMLDirectory)</tMLSteamPath>
-		<!--Publicizer与MonoMod的冲突了-->
-		<NoWarn>$(NoWarn);CS0436</NoWarn>
-	</PropertyGroup>
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<Import Project=".\tModLoader.props" />
+	<Import Project=".\Extensions.targets" />
 
 	<ItemGroup>
-		<!--不要复制tML的那一大堆东西-->
-		<Reference Include="$(tMLDirectory)tModLoader.dll" Private="false" />
-		<Reference Include="$(tMLDirectory)Libraries\**\*.dll" Private="false" />
-		<Reference Remove="$(tMLDirectory)Libraries\Native\**" />
-		<Reference Remove="$(tMLDirectory)Libraries\**\runtime*\**" />
-		<Reference Remove="$(tMLDirectory)Libraries\**\*.resources.dll" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<!--神奇妙妙包-->
-		<PackageReference Condition="'$(EnablePublicizer)' != ''" Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.0" ExcludeAssets="runtime" />
-		<Publicize Condition="'$(EnablePublicizer)' != ''" Include="tModLoader" />
-		<Publicize Condition="'$(EnablePublicizer)' != ''" Include="MonoMod.RuntimeDetour" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<EffectFile Include="**\*.fx" />
-		<ImageFile Include="**\*.png" />
-		<ImageFile Remove="icon.png" />
-		<!--默认不会包含其他资源，需要手动指定-->
-		<!--不知道为啥icon.png是特殊处理的-->
-		<ResourceFile Include="icon.png" />
-		<!--翻译文件-->
-		<ResourceFile Include="**\*.hjson" />
-		<!--音乐文件-->
-		<ResourceFile Include="**\*.ogg" />
-		<ResourceFile Include="**\*.mp3" />
 		<ModFile Include="$(MSBuildProjectDirectory)\build.txt;$(MSBuildProjectDirectory)\description.txt" />
-		<AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
 	</ItemGroup>
 
 	<UsingTask TaskName="BuildEffect" AssemblyFile="$(TaskPath)" />
@@ -57,13 +14,7 @@
 	<UsingTask TaskName="GeneratePath" AssemblyFile="$(TaskPath)" />
 
 	<Target Name="BuildEffect" BeforeTargets="Build" Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
-		<BuildEffect BuilderDirectory="$(ContentBuilderDirectory)"
-					  InputFiles="@(EffectFile)"
-					  TargetPlatform="Windows"
-					  TargetProfile="HiDef"
-				      BuildConfiguration="Release"
-					  IntermediateDirectory="$(IntermediateOutputPath)Assets\"
-					  OutputDirectory="$(OutputPath)Assets\" />
+		<BuildEffect BuilderDirectory="$(ContentBuilderDirectory)" InputFiles="@(EffectFile)" TargetPlatform="Windows" TargetProfile="HiDef" BuildConfiguration="Release" IntermediateDirectory="$(IntermediateOutputPath)Assets\" OutputDirectory="$(OutputPath)Assets\" />
 	</Target>
 
 	<Target Name="BuildImage" BeforeTargets="Build" Inputs="@(ImageFile)" Outputs="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')">
@@ -78,14 +29,7 @@
 		</ItemGroup>
 	</Target>
 	<Target Name="BuildMod" AfterTargets="Build" Inputs="@(ResourceFile);@(AssetFile);@(Compile);@(ModFile)" Outputs="$(ModDirectory)$(AssemblyName).tmod">
-		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)\"
-				  ModName="$(AssemblyName)"
-				  OutputDirectory="$(OutputPath)"
-				  ModDirectory="$(ModDirectory)"
-				  Configuration="$(Configuration)"
-				  IgnoreBuildFile="$(IgnoreBuildFile)"
-				  AssetFiles="@(AssetFile);"
-				  ResourceFiles="@(ResourceFile)" />
+		<BuildMod ModSourceDirectory="$(MSBuildProjectDirectory)\" ModName="$(AssemblyName)" OutputDirectory="$(OutputPath)" ModDirectory="$(ModDirectory)" Configuration="$(Configuration)" IgnoreBuildFile="$(IgnoreBuildFile)" AssetFiles="@(AssetFile);" ResourceFiles="@(ResourceFile)" />
 	</Target>
 
 	<Target Name="CleanAsset" BeforeTargets="Clean">
@@ -98,17 +42,6 @@
 	</Target>
 
 	<Target Name="SetEnableMod" AfterTargets="Build">
-		<SetEnableMod BuildingMod="$(AssemblyName)"
-					  HelpMods="$(HelpMods)"
-					  DisableOtherMod="$(DisableOtherMod)" />
+		<SetEnableMod BuildingMod="$(AssemblyName)" HelpMods="$(HelpMods)" DisableOtherMod="$(DisableOtherMod)" />
 	</Target>
-
-	<Target Name="GeneratePath" BeforeTargets="BeforeCompile" Condition="'$(EnablePathGenerator)' != ''">
-		<GeneratePath ModName="$(AssemblyName)"
-					  AssetFiles="@(EffectFile);@(ImageFile);@(ResourceFile)"
-					  OutputDirectory="$(BaseIntermediateOutputPath)" />
-	</Target>
-	<ItemGroup Condition="'$(EnablePathGenerator)' != ''">
-		<Compile Include="$(BaseIntermediateOutputPath)ModPath.g.cs" Visible="false" AutoGen="true" />
-	</ItemGroup>
 </Project>

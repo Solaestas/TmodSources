@@ -1,0 +1,43 @@
+<Project>
+    <Import Project="..\Config.props" />
+    <PropertyGroup>
+        <ToolsDirectory>$(MSBuildThisFileDirectory)..\ModTools\Publish\</ToolsDirectory>
+        <TaskPath>$(ToolsDirectory)ModTools\ModTools.dll</TaskPath>
+        <ContentBuilderDirectory>$(ToolsDirectory)ContentBuilder\</ContentBuilderDirectory>
+        <!--消除架构警告-->
+        <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+        <!--复制包里面的程序集到输出目录-->
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <!--tML程序集路径-->
+        <tMLPath>$(tMLDirectory)\tModLoader.dll</tMLPath>
+        <!--tML目录-->
+        <tMLSteamPath>$(tMLDirectory)</tMLSteamPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!--不要复制tML的那一大堆东西-->
+        <Reference Include="$(tMLDirectory)tModLoader.dll" Private="false" />
+        <Reference Include="$(tMLDirectory)Libraries\**\*.dll" Private="false" />
+        <Reference Remove="$(tMLDirectory)Libraries\Native\**" />
+        <Reference Remove="$(tMLDirectory)Libraries\**\runtime*\**" />
+        <Reference Remove="$(tMLDirectory)Libraries\**\*.resources.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Shader文件 -->
+        <EffectFile Include="**\*.fx" />
+        <!-- 除去icon的图片文件 -->
+        <ImageFile Include="**\*.png" />
+        <ImageFile Remove="icon.png" />
+        <ImageFile Remove="workshop_icon*.png" />
+        <!--默认不会包含其他资源，需要手动指定-->
+        <!--不知道为啥icon.png是特殊处理的-->
+        <ResourceFile Condition="Exists('icon.png')" Include="icon.png" />
+        <!--翻译文件-->
+        <ResourceFile Include="**\*.hjson" />
+        <!--音乐文件-->
+        <ResourceFile Include="**\*.ogg" />
+        <ResourceFile Include="**\*.mp3" />
+        <AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
+    </ItemGroup>
+</Project>

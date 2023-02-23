@@ -58,7 +58,6 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 	public override bool Execute()
 	{
 		bool success = true;
-		ModName ??= Path.GetFileName(Path.GetDirectoryName(ModSourceDirectory));
 		Log.LogMessage(MessageImportance.High, "Building Mod...");
 		Log.LogMessage(MessageImportance.High, $"Building {ModName} -> {Path.Combine(ModDirectory, $"{ModName}.tmod")}");
 
