@@ -33,12 +33,9 @@
 	</Target>
 
 	<Target Name="CleanAsset" BeforeTargets="Clean">
-		<ItemGroup>
-			<DeleteFile Include="$(OutputPath)Assets\**\*" />
-			<DeleteFile Include="$(IntermediateOutput)Assets" />
-			<DeleteFile Condition="'$(EnablePathGenerator)' != ''" Files="$(BaseIntermediateOutputPath)ModPath.g.cs" />
-		</ItemGroup>
-		<Delete Files="@(DeleteFile)" />
+		<RemoveDir Directories="$(OutputPath)Assets" />
+		<RemoveDir Directories="$(IntermediateOutputPath)Assets" />
+		<Delete Files="$(BaseIntermediateOutputPath)ModPath.g.cs" />
 	</Target>
 
 	<Target Name="SetEnableMod" AfterTargets="Build">
