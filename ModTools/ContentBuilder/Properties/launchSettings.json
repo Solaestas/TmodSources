@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ContentBuilder": {
+      "commandName": "Project",
+      "commandLineArgs": "Test.fx obj\\Debug\\net6.0\\Assets\\ bin\\Debug\\net6.0\\Assets\\ C:\\Codes\\TmodSources\\ModSources\\..\\ModTools\\Publish\\ContentBuilder\\ Windows HiDef Release",
+      "workingDirectory": "C:\\Codes\\TmodSources\\ModTools\\UwUMod"
+    }
+  }
+}
