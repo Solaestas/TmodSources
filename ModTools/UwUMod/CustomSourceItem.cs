@@ -48,7 +48,7 @@ internal class CustomSourceItem : UIModSourceItem
 		}.WithFadedMouseOver();
 		buildButton.PaddingTop -= 2f;
 		buildButton.PaddingBottom -= 2f;
-		buildButton.OnLeftClick += BuildMod;
+		buildButton.OnClick += BuildMod;
 		Append(buildButton);
 
 		var buildReloadButton = new UIAutoScaleTextTextPanel<string>(Language.GetTextValue("tModLoader.MSBuildReload"));
@@ -56,7 +56,7 @@ internal class CustomSourceItem : UIModSourceItem
 		buildReloadButton.Width.Pixels = 200;
 		buildReloadButton.Left.Pixels = 150;
 		buildReloadButton.WithFadedMouseOver();
-		buildReloadButton.OnLeftClick += BuildAndReload;
+		buildReloadButton.OnClick += BuildAndReload;
 		Append(buildReloadButton);
 
 		if (builtMod != null)
@@ -69,24 +69,24 @@ internal class CustomSourceItem : UIModSourceItem
 
 			if (builtMod.properties.side == ModSide.Server)
 			{
-				publishButton.OnLeftClick += PublishServerSideMod;
+				publishButton.OnClick += PublishServerSideMod;
 				Append(publishButton);
 			}
 			else if (builtMod.Enabled)
 			{
-				publishButton.OnLeftClick += PublishMod;
+				publishButton.OnClick += PublishMod;
 				Append(publishButton);
 			}
 		}
 
-		OnLeftDoubleClick += BuildAndReload;
+		OnDoubleClick += BuildAndReload;
 
 		var openCSProjButton = new UIHoverImage(UICommon.CopyCodeButtonTexture, "Open .csproj")
 		{
 			Left = { Pixels = _contextButtonsLeft, Percent = 1f },
 			Top = { Pixels = 4 },
 		};
-		openCSProjButton.OnLeftClick += (a, b) =>
+		openCSProjButton.OnClick += (a, b) =>
 		{
 			Process.Start(
 				new ProcessStartInfo(_csproj)
@@ -124,7 +124,7 @@ internal class CustomSourceItem : UIModSourceItem
 				Top = { Pixels = 4 },
 			};
 
-			portModButton.OnLeftClick += (s, e) =>
+			portModButton.OnClick += (s, e) =>
 			{
 				string modFolderName = Path.GetFileName(_modFolder);
 				string csprojFile = Path.Combine(_modFolder, $"{modFolderName}.csproj");

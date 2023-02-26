@@ -16,6 +16,7 @@ public class ModSourceUIHook : ILoadable
 
 	public void Load(Mod mod)
 	{
+		MonoModHooks.RequestNativeAccess();
 		var method = typeof(UIModSources).GetMethod(
 			nameof(UIModSources.Populate),
 			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
