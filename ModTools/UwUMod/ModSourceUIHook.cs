@@ -65,9 +65,14 @@ public class ModSourceUIHook : ILoadable
 			try
 			{
 				self.status.SetStatus(Language.GetTextValue("tModLoader.Building", mod.Name));
+				var filename = "dotnet/6.0.0/dotnet";
+				if(!File.Exists(filename))
+				{
+					filename = "dotnet";
+				}
 				var proc = new Process()
 				{
-					StartInfo = new ProcessStartInfo("dotnet/6.0.0/dotnet")
+					StartInfo = new ProcessStartInfo(filename)
 					{
 						Arguments = $"build {mod.path}",
 						CreateNoWindow = true,

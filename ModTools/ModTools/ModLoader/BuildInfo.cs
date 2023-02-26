@@ -1,5 +1,3 @@
-//#define DEV // 目前preview分支就是DEV
-
 using System;
 
 namespace ModTools.ModLoader;
@@ -38,7 +36,6 @@ public static class BuildInfo
 
 	static BuildInfo()
 	{
-#if DEV
 		var parts = BuildIdentifier[(BuildIdentifier.IndexOf('+') + 1)..].Split('|');
 		int i = 0;
 
@@ -75,63 +72,5 @@ public static class BuildInfo
 		}
 
 		VersionedNameDevFriendly += $", built {BuildDate:g}";
-#else
-		var parts = BuildIdentifier[(BuildIdentifier.IndexOf('+') + 1)..].Split('|');
-		tMLVersion = new Version(parts[0]);
-		if (parts.Length >= 2)
-		{
-			BranchName = parts[1];
-		}
-		else
-		{
-			BranchName = "unknown";
-		}
-
-		if (parts.Length >= 3)
-		{
-			Enum.TryParse(parts[2], true, out Purpose);
-		}
-
-		if (parts.Length >= 4)
-		{
-			CommitSHA = parts[3];
-		}
-		else
-		{
-			CommitSHA = "unknown";
-		}
-
-		if (parts.Length >= 5)
-		{
-			BuildDate = DateTime.FromBinary(long.Parse(parts[4])).ToLocalTime();
-		}
-
-		// Version name for players
-		VersionedName = $"tModLoader v{tMLVersion}";
-
-		if (!string.IsNullOrEmpty(BranchName) && BranchName != "unknown"
-			&& BranchName != "1.4-stable" && BranchName != "1.4-preview" && BranchName != "1.4")
-		{
-			VersionedName += $" {BranchName}";
-		}
-
-		if (Purpose != BuildPurpose.Stable)
-		{
-			VersionedName += $" {Purpose}";
-		}
-
-		// Version Tag for ???
-		VersionTag = VersionedName["tModLoader ".Length..].Replace(' ', '-').ToLower();
-
-		// Version name for modders
-		VersionedNameDevFriendly = VersionedName;
-
-		if (CommitSHA != "unknown")
-		{
-			VersionedNameDevFriendly += $" {CommitSHA[..8]}";
-		}
-
-		VersionedNameDevFriendly += $", built {BuildDate:g}";
-#endif
 	}
 }
