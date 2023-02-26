@@ -15,10 +15,9 @@ using Newtonsoft.Json;
 var inputFiles = args[0].Split(';');    //输入文件路径
 var intermediateDirectory = args[1];
 var outputDir = args[2];                //输出文件夹
-var asmDir = Path.Combine(args[3], "Runtimes") + Path.DirectorySeparatorChar;                   //程序集路径
-var targetPlatform = args.ElementAtOrDefault(4);
-var targetProfile = args.ElementAtOrDefault(5);
-var buildConfiguration = args.ElementAtOrDefault(6);
+var targetPlatform = args.ElementAtOrDefault(3);
+var targetProfile = args.ElementAtOrDefault(4);
+var buildConfiguration = args.ElementAtOrDefault(5);
 
 var settings = new BuildCoordinatorSettings()
 {

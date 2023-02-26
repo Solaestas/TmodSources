@@ -57,7 +57,6 @@ public class BuildEffect : Task
 			InputFiles,
 			IntermediateDirectory,
 			OutputDirectory,
-			BuilderDirectory,
 			TargetPlatform,
 			TargetProfile,
 			BuildConfiguration,
