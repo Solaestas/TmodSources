@@ -1,22 +1,38 @@
 <Project>
-    <PropertyGroup>
-        <!--Publicizer与MonoMod名称冲突-->
-        <NoWarn>$(NoWarn);CS0436</NoWarn>
-    </PropertyGroup>
-    <ItemGroup>
-        <!--Publicizer Nuget-->
-        <PackageReference Condition="'$(EnablePublicizer)' != ''" Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.0" ExcludeAssets="runtime" />
-        <Publicize Condition="'$(EnablePublicizer)' != ''" Include="tModLoader" />
-        <Publicize Condition="'$(EnablePublicizer)' != ''" Include="MonoMod.RuntimeDetour" />
-    </ItemGroup>
+	<PropertyGroup>
+		<!--Publicizer与MonoMod名称冲突-->
+		<NoWarn>$(NoWarn);CS0436</NoWarn>
+	</PropertyGroup>
+	<ItemGroup>
+		<!--Publicizer Nuget-->
+		<PackageReference Condition="'$(EnablePublicizer)' != ''"
+											Include="BepInEx.AssemblyPublicizer.MSBuild"
+											Version="0.4.0"
+											ExcludeAssets="runtime" />
+		<Publicize Condition="'$(EnablePublicizer)' != ''"
+							 Include="tModLoader" />
+		<Publicize Condition="'$(EnablePublicizer)' != ''"
+							 Include="MonoMod.RuntimeDetour" />
+	</ItemGroup>
 
 
-    <Target Name="GeneratePath" BeforeTargets="BeforeCompile" Condition="'$(EnablePathGenerator)' != ''">
-        <GeneratePath ModName="$(AssemblyName)" AssetFiles="@(EffectFile);@(ImageFile);@(ResourceFile)" OutputDirectory="$(BaseIntermediateOutputPath)" />
-    </Target>
-    <ItemGroup Condition="'$(EnablePathGenerator)' != ''">
-        <!--VS会显示Visible为false的文件的所在文件夹，加一个Link修改显示位置-->
-        <Compile Include="$(BaseIntermediateOutputPath)ModPath.g.cs" Visible="false" AutoGen="true" Link="%(Filename)%(Extension)" />
-    </ItemGroup>
+	<Target Name="GeneratePath"
+					BeforeTargets="BeforeCompile"
+					Condition="'$(EnablePathGenerator)' != ''">
+		<PropertyGroup>
+			<PathNamespace Condition="$(PathNamespace) == ''">$(RootNamespace)</PathNamespace>
+		</PropertyGroup>
+		<GeneratePath ModName="$(AssemblyName)"
+									AssetFiles="@(EffectFile);@(ImageFile);@(ResourceFile)"
+									Namespace="$(PathNamespace)"
+									OutputDirectory="$(BaseIntermediateOutputPath)" />
+	</Target>
+	<ItemGroup Condition="'$(EnablePathGenerator)' != ''">
+		<!--VS会显示Visible为false的文件的所在文件夹，加一个Link修改显示位置-->
+		<Compile Include="$(BaseIntermediateOutputPath)ModPath.g.cs"
+						 Visible="false"
+						 AutoGen="true"
+						 Link="%(Filename)%(Extension)" />
+	</ItemGroup>
 
 </Project>
