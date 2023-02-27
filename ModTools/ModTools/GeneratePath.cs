@@ -16,6 +16,9 @@ public class GeneratePath : Task
 	[Required]
 	public string ModName { get; set; }
 
+	[Required]
+	public string Namespace { get; set; }
+
 	public override bool Execute()
 	{
 		var sb = new StringBuilder();
@@ -52,7 +55,7 @@ public class GeneratePath : Task
 			using ReLogic.Content;
 			using Terraria.ModLoader;
 
-			namespace {{ModName}};
+			namespace {{Namespace}};
 
 			public static class ModPath
 			{
