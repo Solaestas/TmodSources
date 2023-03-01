@@ -11,7 +11,6 @@
 	<UsingTask TaskName="BuildImage" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="BuildMod" AssemblyFile="$(TaskPath)" />
 	<UsingTask TaskName="SetEnableMod" AssemblyFile="$(TaskPath)" />
-	<UsingTask TaskName="GeneratePath" AssemblyFile="$(TaskPath)" />
 
 	<Target Name="BuildEffect" BeforeTargets="Build" Inputs="@(EffectFile)" Outputs="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')">
 		<BuildEffect BuilderDirectory="$(ContentBuilderDirectory)" InputFiles="@(EffectFile)" TargetPlatform="Windows" TargetProfile="HiDef" BuildConfiguration="Release" IntermediateDirectory="$(IntermediateOutputPath)Assets\" OutputDirectory="$(OutputPath)Assets\" />

@@ -9,5 +9,6 @@ internal class TestSystem : ModPlayer
 {
 	public override void PostUpdate()
 	{
+
 	}
 }
