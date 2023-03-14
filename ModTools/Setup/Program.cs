@@ -19,8 +19,6 @@ catch (Exception ex)
 	}
 }
 var modDirectory = Utils.FindModDirectory();
-modLoaderDirectory = Path.GetFullPath(Path.Combine(modLoaderDirectory, "..", "tModLoaderDev")) + Path.DirectorySeparatorChar;
-modDirectory = Path.GetFullPath(Path.Combine(modDirectory, "..", "..", "tModLoader-dev", "Mods")) + Path.DirectorySeparatorChar;
 
 var constants = "$(DefineConstants)";
 try
