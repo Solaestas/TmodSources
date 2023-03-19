@@ -78,7 +78,6 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 
 		if (IgnoreBuildFile)
 		{
-			Log.LogMessage(MessageImportance.High, "Ignore Build File");
 			Parallel.ForEach(ResourceFiles, file =>
 			{
 				if (!File.Exists(file.ItemSpec))
@@ -87,7 +86,7 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 					success = false;
 					return;
 				}
-				tmod.AddFile(file.GetMetadata("Identity"), File.ReadAllBytes(file.ItemSpec));
+				tmod.AddFile(file.GetMetadata("ModPath"), File.ReadAllBytes(file.ItemSpec));
 			});
 		}
 		else
