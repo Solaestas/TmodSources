@@ -110,7 +110,7 @@ public static partial class Utils
 				Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
 				"My Games",
 				"Terraria",
-				"tModLoader",
+				"tModLoader-preview",
 				"Mods") + Path.DirectorySeparatorChar;
 		}
 		else if (OperatingSystem.IsLinux())
@@ -120,7 +120,7 @@ public static partial class Utils
 				".local",
 				"share",
 				"Terraria",
-				"tModLoader",
+				"tModLoader-preview",
 				"Mods") + Path.DirectorySeparatorChar;
 		}
 		else
