@@ -33,11 +33,7 @@
         <!--默认不会包含其他资源，需要手动指定-->
         <!--不知道为啥icon.png是特殊处理的-->
         <ResourceFile Condition="Exists('icon.png')" Include="icon.png" />
-        <!--翻译文件-->
-        <ResourceFile Include="**\*.hjson" />
-        <!--音乐文件-->
-        <ResourceFile Include="**\*.ogg" />
-        <ResourceFile Include="**\*.mp3" />
+        <ResourceFile Include="**\*.{hjson,ogg,mp3}" />
         <AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
     </ItemGroup>
 </Project>
