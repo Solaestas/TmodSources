@@ -32,8 +32,12 @@
         <ImageFile Remove="workshop_icon*.png" />
         <!--默认不会包含其他资源，需要手动指定-->
         <!--不知道为啥icon.png是特殊处理的-->
-        <ResourceFile Condition="Exists('icon.png')" Include="icon.png" />
-        <ResourceFile Include="**\*.{hjson,ogg,mp3}" />
+        <ResourceFile Condition="Exists('icon.png')" Include="icon.png">
+            <ModPath>%(Identity)</ModPath>
+        </ResourceFile>
+        <ResourceFile Include="**\*.{hjson,ogg,mp3}" >
+            <ModPath>%(Identity)</ModPath>
+        </ResourceFile>
         <AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
     </ItemGroup>
 </Project>
