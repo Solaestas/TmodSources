@@ -25,9 +25,6 @@
 			<!--在此Include可以使模组csproj对ImageFile和EffectFile的修改生效-->
 			<AssetFile Include="@(ImageFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).rawimg')" />
 			<AssetFile Include="@(EffectFile->'$(OutputPath)Assets\%(RelativeDir)%(Filename).xnb')" />
-			<ResourceFile Update="**/*">
-				<ModPath>%(Identity)</ModPath>
-			</ResourceFile>
 		</ItemGroup>
 	</Target>
 	<Target Name="BuildMod" AfterTargets="Build" Inputs="@(ResourceFile);@(AssetFile);@(Compile);@(ModFile)" Outputs="$(ModDirectory)$(AssemblyName).tmod">
