@@ -125,7 +125,7 @@ public static partial class Utils
 		}
 		else
 		{
-			Console.WriteLine("Unknown operating system, please enter the mod folder path :");
+			Console.WriteLine("Unknown operating system, please enter the mod folder path:");
 			path = Console.ReadLine()!;
 			if (!Directory.Exists(path))
 			{
@@ -135,11 +135,16 @@ public static partial class Utils
 
 		if (!Directory.Exists(path))
 		{
-			Console.WriteLine("Mod Folder not found, try enter the tml path");
+			Console.WriteLine("Mod Folder not found, try enter the mod folder path(eg. ~/Documents/My Games/Terraria/tModLoader-preview/Mods)");
+			Console.WriteLine("or leave empty to create directory");
 			path = Console.ReadLine()!;
+			if(string.IsNullOrWhiteSpace(path))
+			{
+				Directory.CreateDirectory(path = $"{Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}/My Games/Terraria/tModLoader-preview/Mods");
+			}
 			if (!Directory.Exists(path))
 			{
-				throw new Exception("Not Found");
+				throw new Exception("Not Found!");
 			}
 		}
 		return path;

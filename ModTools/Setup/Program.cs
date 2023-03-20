@@ -11,7 +11,7 @@ try
 catch (Exception ex)
 {
 	Console.WriteLine(ex.Message);
-	Console.WriteLine("Please enter tmodloader directory : ");
+	Console.WriteLine("Please enter tmodloader directory:(eg. D:/Steam/steamapps/common/tModLoader)");
 	modLoaderDirectory = Utils.EnsureDirectory(Console.ReadLine()!);
 	if (!Directory.Exists(modLoaderDirectory) || !File.Exists(Path.Combine(modLoaderDirectory, "tMLMod.targets")))
 	{
