@@ -35,7 +35,7 @@
         <ResourceFile Condition="Exists('icon.png')" Include="icon.png">
             <ModPath>%(Identity)</ModPath>
         </ResourceFile>
-        <ResourceFile Include="**\*.hjson;**\*.mp3;**\*.ogg" >
+        <ResourceFile Include="**\*.hjson;**\*.mp3;**\*.ogg;**\*.wav" >
             <ModPath>%(Identity)</ModPath>
         </ResourceFile>
         <AvailableItemName Include="ModFile;ResourceFile;EffectFile;ImageFile" />
