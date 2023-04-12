@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,88 +58,65 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 
 	public override bool Execute()
 	{
-		bool success = true;
 		Log.LogMessage(MessageImportance.High, "Building Mod...");
 		Log.LogMessage(MessageImportance.High, $"Building {ModName} -> {Path.Combine(ModDirectory, $"{ModName}.tmod")}");
+		var sw = Stopwatch.StartNew();
 
 		var property = BuildProperties.ReadBuildFile(ModSourceDirectory);
 		var tmod = new TmodFile(Path.Combine(ModDirectory, $"{ModName}.tmod"), ModName, property.Version);
 
 		var assetDirectory = Path.Combine(OutputDirectory, "Assets") + Path.DirectorySeparatorChar;
-		Parallel.ForEach(AssetFiles, file =>
-		{
-			if (!File.Exists(file.ItemSpec))
-			{
-				Log.LogError($"File {file.ItemSpec} not exist!");
-				success = false;
-				return;
-			}
-			tmod.AddFile(file.ItemSpec.Replace(assetDirectory, string.Empty), File.ReadAllBytes(file.ItemSpec));
-		});
-
-		if (IgnoreBuildFile)
-		{
-			Parallel.ForEach(ResourceFiles, file =>
-			{
-				if (!File.Exists(file.ItemSpec))
-				{
-					Log.LogError($"File {file.ItemSpec} not exist!");
-					success = false;
-					return;
-				}
-				tmod.AddFile(file.GetMetadata("ModPath"), File.ReadAllBytes(file.ItemSpec));
-			});
-		}
-		else
-		{
-			Parallel.ForEach(
-				Directory.GetFiles(ModSourceDirectory, "*", SearchOption.AllDirectories)
-				.Select(s => (Identity: s.Replace(ModSourceDirectory, string.Empty), FullPath: s))
-				.Where(s => !property.IgnoreFile(s.Identity) && !IgnoreFile(s.Identity)),
-				file =>
-				{
-					tmod.AddFile(file.Identity, File.ReadAllBytes(file.FullPath));
-				});
-		}
 
 		// Add dll and pdb
 		var set = new HashSet<string>(property.DllReferences);
 		var modref = new HashSet<string>(property.ModReferences.Select(mod => mod.Mod));
-		Parallel.ForEach(
+		Task.WhenAll(
+			AssetFiles.Select(file => tmod.AddFileAsync(file.ItemSpec.Replace(assetDirectory, string.Empty), file.ItemSpec))
+			.Concat(IgnoreBuildFile ?
+			ResourceFiles.Select(file => tmod.AddFileAsync(file.GetMetadata("ModPath"), file.ItemSpec)) :
+			Directory.GetFiles(ModSourceDirectory, "*", SearchOption.AllDirectories)
+			.Select(s => (Identity: s.Replace(ModSourceDirectory, string.Empty), FullPath: s))
+			.Where(s => !property.IgnoreFile(s.Identity) && !IgnoreFile(s.Identity))
+			.Select(file => tmod.AddFileAsync(file.Identity, file.FullPath))).Concat(
 			Directory.GetFiles(OutputDirectory, "*", SearchOption.TopDirectoryOnly)
-			.Where(s => !modref.Contains(Path.GetFileNameWithoutExtension(s))),
-			file =>
-		{
-			var ext = Path.GetExtension(file);
-			var name = Path.GetFileNameWithoutExtension(file);
-
-			if (name == ModName)
+			.Where(s => !modref.Contains(Path.GetFileNameWithoutExtension(s)))
+			.Select(file =>
 			{
-				if (ext is ".dll")
-				{
-					tmod.AddFile(name + ext, File.ReadAllBytes(file));
-				}
-				else if (ext is ".pdb")
-				{
-					tmod.AddFile(name + ext, File.ReadAllBytes(file));
-					property.EacPath = file;
-				}
-				return;
-			}
+				var ext = Path.GetExtension(file);
+				var name = Path.GetFileNameWithoutExtension(file);
 
-			if (ext == ".dll")
-			{
-				tmod.AddFile($"lib/{name}.dll", File.ReadAllBytes(file));
-				if (!set.Contains(name))
+				if (name == ModName)
 				{
-					set.Add(name);
+					if (ext is ".dll")
+					{
+						return tmod.AddFileAsync(name + ext, file);
+					}
+					else if (ext is ".pdb")
+					{
+						property.EacPath = file;
+						return tmod.AddFileAsync(name + ext, file);
+					}
 				}
-			}
-		});
+
+				if (ext == ".dll")
+				{
+					if (!set.Contains(name))
+					{
+						set.Add(name);
+					}
+					return tmod.AddFileAsync($"lib/{name}.dll", file);
+				}
+
+				return Task.CompletedTask;
+			}))
+		);
 		property.DllReferences = set.ToArray();
 		tmod.AddFile("Info", property.ToBytes());
+
 		tmod.Save();
-		return success;
+		Log.LogMessage(MessageImportance.High, $"Building Success, costs {sw.Elapsed}");
+
+		return true;
 	}
 
 	public bool IgnoreFile(string path)

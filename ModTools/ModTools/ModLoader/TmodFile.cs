@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 using Ionic.Zlib;
 
 namespace ModTools.ModLoader;
@@ -47,7 +49,7 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 	public readonly string Path;
 
 	private FileStream fileStream;
-	private IDictionary<string, FileEntry> files = new Dictionary<string, FileEntry>();
+	private IDictionary<string, FileEntry> files = new ConcurrentDictionary<string, FileEntry>();
 	private FileEntry[] fileTable;
 
 	public Version TModLoaderVersion { get; private set; }
@@ -76,32 +78,50 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 	/// The file content to add. WARNING, data is kept as a shallow copy, so modifications to the
 	/// passed byte array will affect file content
 	/// </param>
+	//public void AddFile(string fileName, byte[] data)
+	//{
+	//	fileName = Sanitize(fileName);
+	//	int size = data.Length;
+
+	//	if (size > MIN_COMPRESS_SIZE && ShouldCompress(fileName))
+	//	{
+	//		using var ms = new MemoryStream(data.Length);
+	//		using (var ds = new DeflateStream(ms, CompressionMode.Compress))
+	//		{
+	//			ds.Write(data, 0, data.Length);
+	//		}
+
+	//		var compressed = ms.ToArray();
+	//		if (compressed.Length < size * COMPRESSION_TRADEOFF)
+	//		{
+	//			data = compressed;
+	//		}
+	//	}
+
+	//	lock (files)
+	//	{
+	//		files[fileName] = new FileEntry(fileName, -1, size, data.Length, data);
+	//	}
+
+	//	fileTable = null;
+	//}
+
+	public async Task AddFileAsync(string fileName, string filePath)
+	{
+		fileName = Sanitize(fileName);
+		var fileInfo = new FileInfo(filePath);
+		int size = ((int)fileInfo.Length);
+		using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+		var data = new byte[size];
+		await stream.ReadAsync(data, 0, size);
+		files[fileName] = new FileEntry(fileName, -1, size, size, data);
+	}
+
 	public void AddFile(string fileName, byte[] data)
 	{
 		fileName = Sanitize(fileName);
 		int size = data.Length;
-
-		if (size > MIN_COMPRESS_SIZE && ShouldCompress(fileName))
-		{
-			using var ms = new MemoryStream(data.Length);
-			using (var ds = new DeflateStream(ms, CompressionMode.Compress))
-			{
-				ds.Write(data, 0, data.Length);
-			}
-
-			var compressed = ms.ToArray();
-			if (compressed.Length < size * COMPRESSION_TRADEOFF)
-			{
-				data = compressed;
-			}
-		}
-
-		lock (files)
-		{
-			files[fileName] = new FileEntry(fileName, -1, size, data.Length, data);
-		}
-
-		fileTable = null;
+		files[fileName] = new FileEntry(fileName, -1, size, size, data);
 	}
 
 	public void RemoveFile(string fileName)
@@ -191,7 +211,7 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 
 	// Ignore file extensions which don't compress well under deflate to improve build time
 	private static bool ShouldCompress(string fileName) =>
-		!fileName.EndsWith(".png") &&
-		!fileName.EndsWith(".mp3") &&
-		!fileName.EndsWith(".ogg");
+		!fileName.EndsWith(".png", StringComparison.Ordinal) &&
+		!fileName.EndsWith(".mp3", StringComparison.Ordinal) &&
+		!fileName.EndsWith(".ogg", StringComparison.Ordinal);
 }
