@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Build.Framework;
 using SixLabors.ImageSharp;
@@ -24,7 +25,7 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 	public override bool Execute()
 	{
 		Log.LogMessage(MessageImportance.High, "Building Images...");
-		Parallel.ForEach(InputFiles, file =>
+		Task.WhenAll(InputFiles.Select(file =>
 		{
 			var relativeDir = file.GetMetadata("RelativeDir");
 			var filename = file.GetMetadata("Filename");
@@ -33,19 +34,12 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 			string dir = Path.Combine(OutputDirectory, relativeDir);
 			string filePath = Path.Combine(dir, $"{filename}.rawimg");
 			Log.LogMessage(MessageImportance.High, $"Building {identity} -> {filePath}");
-			try
-			{
-				Directory.CreateDirectory(dir);
-				using var output = File.Create(filePath);
-				using var input = File.OpenRead(file.ItemSpec);
-				ImageIO.ToRaw(input, output);
-			}
-			catch (Exception ex)
-			{
-				Log.LogErrorFromException(ex, false, true, filename);
-				throw;
-			}
-		});
+
+			Directory.CreateDirectory(dir);
+			using var output = File.Create(filePath);
+			using var input = File.OpenRead(file.ItemSpec);
+			return ImageIO.ToRaw(input, output);
+		}));
 		return true;
 	}
 }
@@ -55,9 +49,9 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 /// </summary>
 public static class ImageIO
 {
-	public static bool ToRaw(Stream source, Stream destination)
+	public static async Task ToRaw(Stream source, Stream destination)
 	{
-		var image = Image.Load<Rgba32>(source);
+		var image = await Image.LoadAsync<Rgba32>(source);
 		using BinaryWriter writer = new BinaryWriter(destination);
 
 		// 不知道为啥要写一个1进去
@@ -87,6 +81,5 @@ public static class ImageIO
 				}
 			}
 		});
-		return true;
 	}
 }
