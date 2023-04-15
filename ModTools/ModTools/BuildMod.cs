@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Build.Framework;
 using ModTools.ModLoader;
 
@@ -70,14 +69,15 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 		// Add dll and pdb
 		var set = new HashSet<string>(property.DllReferences);
 		var modref = new HashSet<string>(property.ModReferences.Select(mod => mod.Mod));
-		Task.WhenAll(
-			AssetFiles.Select(file => tmod.AddFileAsync(file.ItemSpec.Replace(assetDirectory, string.Empty), file.ItemSpec))
+
+		tmod.files =
+			AssetFiles.Select(file => tmod.AddFile(file.ItemSpec.Replace(assetDirectory, string.Empty), file.ItemSpec))
 			.Concat(IgnoreBuildFile ?
-			ResourceFiles.Select(file => tmod.AddFileAsync(file.GetMetadata("ModPath"), file.ItemSpec)) :
+			ResourceFiles.Select(file => tmod.AddFile(file.GetMetadata("ModPath"), file.ItemSpec)) :
 			Directory.GetFiles(ModSourceDirectory, "*", SearchOption.AllDirectories)
 			.Select(s => (Identity: s.Replace(ModSourceDirectory, string.Empty), FullPath: s))
 			.Where(s => !property.IgnoreFile(s.Identity) && !IgnoreFile(s.Identity))
-			.Select(file => tmod.AddFileAsync(file.Identity, file.FullPath))).Concat(
+			.Select(file => tmod.AddFile(file.Identity, file.FullPath))).Concat(
 			Directory.GetFiles(OutputDirectory, "*", SearchOption.TopDirectoryOnly)
 			.Where(s => !modref.Contains(Path.GetFileNameWithoutExtension(s)))
 			.Select(file =>
@@ -89,12 +89,12 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 				{
 					if (ext is ".dll")
 					{
-						return tmod.AddFileAsync(name + ext, file);
+						return tmod.AddFile(name + ext, file);
 					}
 					else if (ext is ".pdb")
 					{
 						property.EacPath = file;
-						return tmod.AddFileAsync(name + ext, file);
+						return tmod.AddFile(name + ext, file);
 					}
 				}
 
@@ -104,14 +104,14 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 					{
 						set.Add(name);
 					}
-					return tmod.AddFileAsync($"lib/{name}.dll", file);
+					return tmod.AddFile($"lib/{name}.dll", file);
 				}
 
-				return Task.CompletedTask;
-			}))
-		);
+				return default;
+			}).Where(v => v.Key != default))
+			.ToDictionary(v => v.Key, v => v.Value);
 		property.DllReferences = set.ToArray();
-		tmod.AddFile("Info", property.ToBytes());
+		tmod.files.Add(tmod.AddFile("Info", property.ToBytes()));
 
 		tmod.Save();
 		Log.LogMessage(MessageImportance.High, $"Building Success, costs {sw.Elapsed}");
@@ -138,11 +138,6 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 			return false;
 		}
 
-		if (ext is ".png" or ".cs" or ".md" or ".txt" or ".cache" or ".fx")
-		{
-			return true;
-		}
-
-		return false;
+		return ext is ".png" or ".cs" or ".md" or ".txt" or ".cache" or ".fx";
 	}
 }
