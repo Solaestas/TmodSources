@@ -49,7 +49,7 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 	public readonly string Path;
 
 	private FileStream fileStream;
-	private IDictionary<string, FileEntry> files = new ConcurrentDictionary<string, FileEntry>();
+	internal IDictionary<string, FileEntry> files = new Dictionary<string, FileEntry>();
 	private FileEntry[] fileTable;
 
 	public Version TModLoaderVersion { get; private set; }
@@ -106,22 +106,22 @@ public class TmodFile : IEnumerable<TmodFile.FileEntry>
 	//	fileTable = null;
 	//}
 
-	public async Task AddFileAsync(string fileName, string filePath)
+	public KeyValuePair<string, FileEntry> AddFile(string fileName, string filePath)
 	{
 		fileName = Sanitize(fileName);
 		var fileInfo = new FileInfo(filePath);
 		int size = ((int)fileInfo.Length);
 		using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
 		var data = new byte[size];
-		await stream.ReadAsync(data, 0, size);
-		files[fileName] = new FileEntry(fileName, -1, size, size, data);
+		stream.Read(data, 0, size);
+		return new KeyValuePair<string, FileEntry>(fileName, new FileEntry(fileName, -1, size, size, data));
 	}
 
-	public void AddFile(string fileName, byte[] data)
+	public KeyValuePair<string, FileEntry> AddFile(string fileName, byte[] data)
 	{
 		fileName = Sanitize(fileName);
 		int size = data.Length;
-		files[fileName] = new FileEntry(fileName, -1, size, size, data);
+		return new KeyValuePair<string, FileEntry>(fileName, new FileEntry(fileName, -1, size, size, data));
 	}
 
 	public void RemoveFile(string fileName)
