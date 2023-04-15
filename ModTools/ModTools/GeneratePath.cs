@@ -85,7 +85,7 @@ public class GeneratePath : Task
 		HashSet<string> usedField = new HashSet<string>();
 		foreach (var conflict in fields.GroupBy(f => f.Field))
 		{
-			if(conflict.Count() <= 1)
+			if (conflict.Count() <= 1)
 			{
 				continue;
 			}
@@ -169,7 +169,7 @@ public class GeneratePath : Task
 			string fieldName = Validate(field.Field);
 			if (GetFileType(identity) is string type)
 			{
-				if (string.IsNullOrEmpty(fieldName))
+				if (string.IsNullOrEmpty(AssetPrefix))
 				{
 					sb.Append("\tpublic const string ").Append(fieldName).Append("Path = @\"");
 				}
