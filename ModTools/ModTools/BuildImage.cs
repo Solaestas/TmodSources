@@ -25,7 +25,7 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 	public override bool Execute()
 	{
 		Log.LogMessage(MessageImportance.High, "Building Images...");
-		Task.WhenAll(InputFiles.Select(file =>
+		foreach(var file in InputFiles)
 		{
 			var relativeDir = file.GetMetadata("RelativeDir");
 			var filename = file.GetMetadata("Filename");
@@ -38,8 +38,8 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 			Directory.CreateDirectory(dir);
 			using var output = File.Create(filePath);
 			using var input = File.OpenRead(file.ItemSpec);
-			return ImageIO.ToRaw(input, output);
-		}));
+			ImageIO.ToRaw(input, output);
+		};
 		return true;
 	}
 }
@@ -49,9 +49,9 @@ public class BuildImage : Microsoft.Build.Utilities.Task
 /// </summary>
 public static class ImageIO
 {
-	public static async Task ToRaw(Stream source, Stream destination)
+	public static void ToRaw(Stream source, Stream destination)
 	{
-		var image = await Image.LoadAsync<Rgba32>(source);
+		var image = Image.Load<Rgba32>(source);
 		using BinaryWriter writer = new BinaryWriter(destination);
 
 		// 不知道为啥要写一个1进去
