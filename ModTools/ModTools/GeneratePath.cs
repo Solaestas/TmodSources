@@ -169,7 +169,14 @@ public class GeneratePath : Task
 			string fieldName = Validate(field.Field);
 			if (GetFileType(identity) is string type)
 			{
-				sb.Append("\tpublic const string ").Append(fieldName).Append("Path = @\"").Append(AssetPrefix).Append('/');
+				if (string.IsNullOrEmpty(fieldName))
+				{
+					sb.Append("\tpublic const string ").Append(fieldName).Append("Path = @\"");
+				}
+				else
+				{
+					sb.Append("\tpublic const string ").Append(fieldName).Append("Path = @\"").Append(AssetPrefix).Append('/');
+				}
 				if (field.Directories != null)
 				{
 					for (int i = 0; i < field.Directories.Length; i++)
