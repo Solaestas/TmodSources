@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -69,7 +70,11 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 		// Add dll and pdb
 		var set = new HashSet<string>(property.DllReferences);
 		var modref = new HashSet<string>(property.ModReferences.Select(mod => mod.Mod));
-
+		IEnumerable<KeyValuePair<string, TmodFile.FileEntry>> CreateInfo()
+		{
+			property.DllReferences = set.ToArray();
+			yield return tmod.AddFile("Info", property.ToBytes());
+		}
 		tmod.files =
 			AssetFiles.Select(file => tmod.AddFile(file.ItemSpec.Replace(assetDirectory, string.Empty), file.ItemSpec))
 			.Concat(IgnoreBuildFile ?
@@ -109,14 +114,27 @@ public class BuildMod : Microsoft.Build.Utilities.Task
 
 				return default;
 			}).Where(v => v.Key != default))
-			.ToDictionary(v => v.Key, v => v.Value);
-		property.DllReferences = set.ToArray();
-		tmod.files.Add(tmod.AddFile("Info", property.ToBytes()));
+			.Concat(CreateInfo())
+			.Distinct(new CCC())
+			.ToImmutableDictionary(v => v.Key, v => v.Value);
+
 
 		tmod.Save();
 		Log.LogMessage(MessageImportance.High, $"Building Success, costs {sw.Elapsed}");
 
 		return true;
+	}
+	public class CCC : EqualityComparer<KeyValuePair<string, TmodFile.FileEntry>>
+	{
+		public override bool Equals(KeyValuePair<string, TmodFile.FileEntry> x, KeyValuePair<string, TmodFile.FileEntry> y)
+		{
+			return x.Key == y.Key;
+		}
+
+		public override int GetHashCode(KeyValuePair<string, TmodFile.FileEntry> obj)
+		{
+			return obj.Key.GetHashCode();
+		}
 	}
 
 	public bool IgnoreFile(string path)
